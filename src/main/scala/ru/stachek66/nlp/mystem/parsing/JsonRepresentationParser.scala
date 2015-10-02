@@ -14,22 +14,28 @@ object JsonRepresentationParser {
 
   //todo:
   private def toInfo(json: JSONArray): Traversable[Info] = {
-    val stuff = (for (i <- 0 to json.length - 1) yield {
-      val item = json.getJSONObject(i)
-      val initial = item.getString("text")
-      val analysis = item.getJSONArray("analysis")
-      val result = for (j <- 0 to analysis.length - 1) yield {
-        val anItem = analysis.getJSONObject(j)
-        new Info(
-          initial,
-          anItem.getString("lex"),
-          0d,
-          GrammarInfoParsing.toGrammarInfo(anItem.getString("gr")))
+    val stuff: Traversable[Info] =
+      for (i <- 0 to json.length - 1)
+      yield {
+        val item = json.getJSONObject(i)
+        val initial = item.getString("text")
+        val analysis = item.getJSONArray("analysis")
+
+        if (analysis.length() == 0)
+          Info(initial, None)
+        else {
+          val result =
+            for (j <- 0 to analysis.length - 1)
+            yield {
+              val anItem = analysis.getJSONObject(j)
+              new Info(initial, Option(anItem.getString("lex"))) //,
+                //          0d, GrammarInfoParsing.toGrammarInfo(anItem.getString("gr"))
+            }
+          //todo:
+          result.head
+        }
       }
-      //todo:
-      result.headOption
-    })
-    stuff.flatten
+    stuff
   }
 
   //todo:

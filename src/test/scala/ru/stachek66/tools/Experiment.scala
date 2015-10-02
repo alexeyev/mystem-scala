@@ -11,6 +11,8 @@ object Experiment extends App {
 
   val thread = new FailSafeExternalProcessServer("/home/alexeyev/mystem -igd --eng-gr --format json ")
 
-  for (i <- List("красота", "спасёт", "человечество", "достоевский", "михайлович"))
+  for (i <- List("красота", "спасёт", "человечество", "достоевский", "михайлович", "ip"))
     println(thread.syncRequest(i))
+
+  println(thread.syncRequest("я тебя по ip вычеслю"))
 }
