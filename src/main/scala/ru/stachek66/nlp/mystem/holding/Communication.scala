@@ -14,13 +14,11 @@ case class Request(text: String)
 
 case class Response(info: Traversable[Info])
 
-/**
- * We need this because mystem.v < 3.0 doesn't support json AFAIK
- */
 trait MyStem {
   def analyze(request: Request): Response
 }
 
+// We need this because mystem.v < 3.0 doesn't support json AFAIK
 class MyStem30 private[holding](s: FailSafeExternalProcessServer) extends MyStem {
 
   override def analyze(request: Request): Response = {

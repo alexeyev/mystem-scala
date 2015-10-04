@@ -6,9 +6,7 @@ import com.typesafe.config.ConfigFactory
 import org.slf4j.LoggerFactory
 
 /**
- * Помойка, к которой надо обращаться, когда нужно найти что-то
- * конфигурируемое или продиктованное внешним миром.
- *
+ * Various configs for interaction with outer world
  * alexeyev 
  * 31.08.14.
  */

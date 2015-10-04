@@ -6,5 +6,5 @@ import org.json.JSONObject
  * alexeyev 
  * 31.08.14.
  */
-case class Info(initial: String, lex: Option[String], rawJson: JSONObject)
+case class Info(initial: String, lex: Option[String], rawResponse: String)
 //, weight: Double) //, grInfo: GrammarInfo)

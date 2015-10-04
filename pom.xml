@@ -4,14 +4,39 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <groupId>ru.stachek66.nlp</groupId>
+    <artifactId>mystem-scala</artifactId>
+    <version>0.1.2</version>
+    <packaging>jar</packaging>
+
+    <name>${project.groupId}:${project.artifactId}</name>
+    <description>A Scala wrapper for morphological analyzer Yandex.MyStem</description>
+    <url>https://github.com/alexeyev/mystem-scala</url>
+
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>http://www.opensource.org/licenses/mit-license.php</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Anton Alekseev</name>
+            <email>anton.m.alexeyev@gmail.com</email>
+            <url>http://www.stachek66.ru/</url>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git@github.com:alexeyev/mystem-scala.git</connection>
+        <developerConnection>scm:git:git@github.com:alexeyev/mystem-scala.git</developerConnection>
+        <url>git@github.com:alexeyev/mystem-scala.git</url>
+    </scm>
+
     <prerequisites>
         <maven>3.0.2</maven>
     </prerequisites>
-
-    <groupId>ru.stachek66.nlp</groupId>
-    <artifactId>mystem-scala</artifactId>
-    <version>0.1.1-SNAPSHOT</version>
-    <packaging>jar</packaging>
 
     <properties>
         <scala.base.version>2.11</scala.base.version>
@@ -26,6 +51,7 @@
         <junit.version>4.12</junit.version>
         <surefire.version>2.7</surefire.version>
         <scoverage.plugin.version>1.0.4</scoverage.plugin.version>
+        <compress.version>1.2</compress.version>
     </properties>
 
     <dependencies>
@@ -57,7 +83,7 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-compress</artifactId>
-            <version>1.2</version>
+            <version>${compress.version}</version>
         </dependency>
 
         <dependency>
@@ -183,10 +209,21 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>2.0.4</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
                         <goals>
                             <goal>jar</goal>
                         </goals>
