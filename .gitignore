@@ -1,5 +1,7 @@
 *.iml
 .idea
 target
+*.zip
+*.gz
 *~
 *log

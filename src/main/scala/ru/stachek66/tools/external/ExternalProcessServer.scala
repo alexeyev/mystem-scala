@@ -31,11 +31,11 @@ private[external] class ExternalProcessServer(starterCommand: String) extends Sy
     writer.newLine()
     writer.flush()
 
-    log.debug("waiting for reader, request = " + request)
+    log.trace("waiting for reader, request = " + request)
 
     while (!bufferedReader.ready()) {}
 
-    log.debug("reader ready")
+    log.trace("reader ready")
 
     val builder = new StringBuilder()
     while (bufferedReader.ready) builder.append(bufferedReader.readLine())

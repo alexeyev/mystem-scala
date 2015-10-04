@@ -7,7 +7,7 @@
     </appender>
 
     <!-- todo: move to INFO later -->
-    <root level="TRACE">
+    <root level="DEBUG">
         <appender-ref ref="STDOUT" />
     </root>
 

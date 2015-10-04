@@ -13,7 +13,8 @@ package object mystem {
   val os = Map(
     ("Linux", "x86_64") -> "linux64",
     ("Linux", "amd64") -> "linux64",
-    ("Linux", "x86") -> "linux32"
+    ("Linux", "x86") -> "linux32",
+    ("Windows7", "x86") -> "win32"
   ) withDefault {
     _ =>
       log.warn("Getting default binaries!")

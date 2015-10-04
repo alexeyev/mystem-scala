@@ -22,13 +22,13 @@ object JsonRepresentationParser {
         val analysis = item.getJSONArray("analysis")
 
         if (analysis.length() == 0)
-          Info(initial, None)
+          Info(initial, None, item)
         else {
           val result =
             for (j <- 0 to analysis.length - 1)
             yield {
               val anItem = analysis.getJSONObject(j)
-              new Info(initial, Option(anItem.getString("lex"))) //,
+              new Info(initial, Option(anItem.getString("lex")), item) //,
                 //          0d, GrammarInfoParsing.toGrammarInfo(anItem.getString("gr"))
             }
           //todo:
