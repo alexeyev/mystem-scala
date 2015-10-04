@@ -95,6 +95,6 @@ Anton Alekseev <anton.m.alexeyev@gmail.com>
 
 ## Also see
 
-https://tech.yandex.ru/mystem/
-https://nlpub.ru/Mystem
-https://github.com/Digsolab/pymystem3
+* https://tech.yandex.ru/mystem/
+* https://nlpub.ru/Mystem
+* https://github.com/Digsolab/pymystem3
