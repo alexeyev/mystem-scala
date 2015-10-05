@@ -14,6 +14,8 @@ The wrapper should at least work on Ubuntu Linux 12.04+, and Windows 7+.
 
 ### Maven
 
+Deployment to Maven Central: [in progress](https://issues.sonatype.org/browse/OSSRH-18051)
+
 ```xml
 <dependency>
   <groupId>ru.stachek66.nlp</groupId>
