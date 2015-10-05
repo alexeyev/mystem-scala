@@ -10,17 +10,29 @@ The wrapper's code in under MIT license, but please remember that Yandex.MyStem 
 
 The wrapper should at least work on Ubuntu Linux 12.04+, and Windows 7+.
 
+## Install
+
+### Maven
+
+```xml
+<dependency>
+  <groupId>ru.stachek66.nlp</groupId>
+  <artifactId>mystem-scala</artifactId>
+  <version>0.1.2</version>
+</dependency>
+```
+
 ## Issues
 
 Only mystem 3.0 is supported currently.
 Please create issues for compatibility troubles and requests (https://github.com/alexeyev/mystem-scala/issues)
 
-## Example
+## Examples
 
 Probably the most important thing to remember when working with mystem-scala is 
 that you should have just one MyStem instance per mystem/mystem.exe file in your application.
 
-###Scala example
+###Scala 
 
 ```scala
 import java.io.File
@@ -46,7 +58,7 @@ object AppExampleScala extends App {
 }
 ```
 
-###Java example
+###Java 
 
 ```java
 import ru.stachek66.nlp.mystem.holding.Factory;
