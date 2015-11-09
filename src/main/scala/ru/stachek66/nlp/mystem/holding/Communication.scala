@@ -15,6 +15,9 @@ case class Request(text: String)
 case class Response(info: Traversable[Info])
 
 trait MyStem {
+
+  def normalize(text: String) = text.replaceAll("\n", " ")
+
   def analyze(request: Request): Response
 }
 
@@ -22,7 +25,7 @@ trait MyStem {
 class MyStem30 private[holding](s: FailSafeExternalProcessServer) extends MyStem {
 
   override def analyze(request: Request): Response = {
-    s.syncRequest(request.text) match {
+    s.syncRequest(normalize(request.text)) match {
       case Failure(e) => throw e //todo: think harder and do something
       case Success(json) => Response(JsonRepresentationParser.toInfo(json))
     }
