@@ -14,20 +14,20 @@ The wrapper should at least work on Ubuntu Linux 12.04+, and Windows 7+.
 
 ### Maven
 
-Deployment to Maven Central: [in progress](https://issues.sonatype.org/browse/OSSRH-18051)
+[Maven central](http://search.maven.org/#artifactdetails|ru.stachek66.nlp|mystem-scala|0.1.3|jar)
 
 ```xml
 <dependency>
   <groupId>ru.stachek66.nlp</groupId>
   <artifactId>mystem-scala</artifactId>
-  <version>0.1.2</version>
+  <version>0.1.3</version>
 </dependency>
 ```
 
 ## Issues
 
 Only mystem 3.0 is supported currently.
-Please create issues for compatibility troubles and requests (https://github.com/alexeyev/mystem-scala/issues)
+Please create issues for compatibility troubles and other requests (https://github.com/alexeyev/mystem-scala/issues)
 
 ## Examples
 
