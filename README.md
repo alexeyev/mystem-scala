@@ -27,7 +27,7 @@ The wrapper should at least work on Ubuntu Linux 12.04+, and Windows 7+.
 ## Issues
 
 Only mystem 3.0 is supported currently.
-Please create issues for compatibility troubles and other requests (https://github.com/alexeyev/mystem-scala/issues)
+Please [create issues for compatibility troubles and other requests.](https://github.com/alexeyev/mystem-scala/issues)
 
 ## Examples
 
@@ -120,10 +120,10 @@ Anton Alekseev <anton.m.alexeyev@gmail.com>
 
 ## Thanks for reviews
 
-Vladislav @darl
-Misha Malchevsky
+* Vladislav @darl
+* Misha Malchevsky
 
-## Also see
+## Also please see
 
 * https://tech.yandex.ru/mystem/
 * https://nlpub.ru/Mystem
