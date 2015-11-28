@@ -8,12 +8,13 @@ import ru.stachek66.nlp.mystem.model.Info
  * 31.08.14.
  */
 object JsonRepresentationParser {
-  //todo:
 
   def toInfo(json: String): Traversable[Info] = toInfo(new JSONArray(json))
 
-  //todo:
   private def toInfo(json: JSONArray): Traversable[Info] = {
+
+    //todo: fix and enable GrammarInfo parsing
+
     val stuff: Traversable[Info] =
       for (i <- 0 to json.length - 1)
       yield {
@@ -28,19 +29,11 @@ object JsonRepresentationParser {
             for (j <- 0 to analysis.length - 1)
             yield {
               val anItem = analysis.getJSONObject(j)
-              new Info(initial, Option(anItem.getString("lex")), item.toString) //,
-                //          0d, GrammarInfoParsing.toGrammarInfo(anItem.getString("gr"))
+              new Info(initial, Option(anItem.getString("lex")), item.toString)
             }
-          //todo:
           result.head
         }
       }
     stuff
   }
-
-  //todo:
-  private def toJson(info: Info): JSONArray = throw new NotImplementedError
-
-  def toJsonString(info: Info): String = toJson(info).toString
-
 }

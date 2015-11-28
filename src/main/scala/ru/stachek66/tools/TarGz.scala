@@ -1,10 +1,12 @@
 package ru.stachek66.tools
 
-import java.io.{File, FileInputStream}
+import java.io.{IOException, File, FileInputStream}
 import java.util.zip.GZIPInputStream
 
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
 import org.slf4j.LoggerFactory
+
+import scala.util.Try
 
 /**
  * *.tar.gz files decompression tool
@@ -17,7 +19,10 @@ private object TarGz extends Decompressor {
 
   def traditionalExtension: String = "tar.gz"
 
-  /** Untars -single- file */
+  /**
+   * Untars -single- file
+   */
+  @throws(classOf[IOException])
   def unpack(src: File, dst: File): File = {
 
     log.debug(s"Unpacking $src to $dst...")

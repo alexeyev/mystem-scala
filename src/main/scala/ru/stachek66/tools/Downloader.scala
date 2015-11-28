@@ -16,8 +16,10 @@ object Downloader {
 
   def downloadBinaryFile(url: URL, destination: File) = {
     log.debug(s"Getting binaries from $url, writing to $destination ")
+
     if (!destination.getAbsoluteFile.getParentFile.mkdirs && !destination.getAbsoluteFile.getParentFile.exists)
       throw new Exception("Could not create directory: " + destination.getParentFile)
+
     FileUtils.copyURLToFile(url, destination)
     log.debug("Downloading binaries done.")
     destination

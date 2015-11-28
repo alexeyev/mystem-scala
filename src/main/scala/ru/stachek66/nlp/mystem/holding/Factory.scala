@@ -10,6 +10,7 @@ import ru.stachek66.tools.{Decompressor, Downloader, Tools}
 
 import scala.concurrent.duration._
 import scala.sys.process._
+import scala.util.Try
 
 /**
  * Provides fresh mystem binaries; a factory
@@ -26,7 +27,7 @@ class Factory(parsingOptions: String = "-igd --eng-gr --format json --weight") {
    * Creates a new instance of mystem server
    * Uses .local if customExecutable was not set
    */
-  def newMyStem(version: String, customExecutable: Option[File] = None): MyStem = {
+  def newMyStem(version: String, customExecutable: Option[File] = None): Try[MyStem] = Try {
 
     val ex = customExecutable match {
       case Some(exe) => exe
@@ -42,6 +43,7 @@ class Factory(parsingOptions: String = "-igd --eng-gr --format json --weight") {
     }
   }
 
+  @throws(classOf[Exception])
   private[holding] def getExecutable(version: String): File = {
 
     val destFile = new File(BinDestination + BIN_FILE_NAME)
@@ -54,10 +56,12 @@ class Factory(parsingOptions: String = "-igd --eng-gr --format json --weight") {
       try {
         val suggestedVersion = (destFile.getAbsolutePath + " -v") !!
 
-        log.info("version | " + suggestedVersion)
+        log.info("Version | " + suggestedVersion)
         // not scala-way stuff
-        if (suggestedVersion.contains(version)) destFile
-        else throw new Exception("wrong version!")
+        if (suggestedVersion.contains(version))
+          destFile
+        else
+          throw new Exception("Wrong version!")
       } catch {
         case e: Exception =>
           log.warn("Removing old binary files...", e)
@@ -67,8 +71,7 @@ class Factory(parsingOptions: String = "-igd --eng-gr --format json --weight") {
     } else Tools.withAttempt(10, 1.second) {
       try {
         Decompressor.select.unpack(
-          Downloader.downloadBinaryFile(getUrl(version), tempFile),
-          destFile)
+          Downloader.downloadBinaryFile(getUrl(version), tempFile), destFile)
       } finally {
         tempFile.delete()
         try {

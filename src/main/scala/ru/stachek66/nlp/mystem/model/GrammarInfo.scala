@@ -14,6 +14,4 @@ case class GrammarInfo(pos: Set[POS.Value] = Set.empty,
                        aspect: Set[Aspect.Value] = Set.empty,
                        voice: Set[Voice.Value] = Set.empty,
                        animacy: Set[Animacy.Value] = Set.empty,
-                       //todo: consider splitting into meaningful enums
-                       other: Set[Other.Value] = Set.empty[Other.Value]
-                        )
+                       other: Set[Other.Value] = Set.empty[Other.Value])

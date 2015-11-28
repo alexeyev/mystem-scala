@@ -25,7 +25,6 @@ object Properties {
   val BIN_FILE_NAME = CurrentOs match {
     case name if name.startsWith("win") => "mystem.exe"
     case name => "mystem"
-//    case _ => throw new Exception("Couldn't determine the OS")
   }
 
   private lazy val rootProp = ConfigFactory.load("mystem-sources.conf")
@@ -39,6 +38,7 @@ object Properties {
       case e: Throwable => throw new Exception(message)
     }
 
+  @throws(classOf[Exception])
   def getUrl(versionRaw: String, os: String = CurrentOs): URL = {
 
     require(versionPattern.matcher(versionRaw).matches,

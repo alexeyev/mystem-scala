@@ -1,21 +1,21 @@
 package ru.stachek66.nlp.mystem.model
 
 /**
- * todo: check and complete translation
- * alexeyev 
+ * alexeyev
  * 31.08.14.
  */
-
 object GrammarMapBuilder {
 
-  private def tagToEnum(enum: Enumeration) = enum.values.map(value => value.toString -> enum)
+  //todo: make sure everything is covered
 
-  //todo: rewrite with reduce
-  lazy val tagToEnumMap: Map[String, Enumeration] = //throw new NotImplementedError
-    (tagToEnum(POS) ++ tagToEnum(Tense) ++ tagToEnum(Animacy) ++ tagToEnum(Aspect) ++ tagToEnum(VerbForms) ++
-      tagToEnum(Gender) ++ tagToEnum(Number) ++ tagToEnum(Voice) ++ tagToEnum(Other) ++ tagToEnum(AdjectiveForms) ++
-      tagToEnum(Person) ++ tagToEnum(Case)
+  lazy val tagToEnumMap: Map[String, Enumeration] =
+    (tagToEnum(POS) ++ tagToEnum(Tense) ++ tagToEnum(Animacy) ++
+      tagToEnum(Aspect) ++ tagToEnum(VerbForms) ++ tagToEnum(Gender) ++
+      tagToEnum(Number) ++ tagToEnum(Voice) ++ tagToEnum(Other) ++
+      tagToEnum(AdjectiveForms) ++ tagToEnum(Person) ++ tagToEnum(Case)
       ).toMap
+
+  private def tagToEnum(enum: Enumeration) = enum.values.map(value => value.toString -> enum)
 }
 
 object POS extends Enumeration {
@@ -67,7 +67,6 @@ object VerbForms extends Enumeration {
 }
 
 object AdjectiveForms extends Enumeration {
-  //todo: a good translation
   val brev = Value("brev")
   val plen = Value("plen")
   val possessive = Value("poss")

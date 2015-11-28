@@ -12,6 +12,7 @@ object Tools {
 
   private val log = LoggerFactory.getLogger(getClass)
 
+  @throws(classOf[Exception])
   def withAttempt[T](n: Int, timeout: Duration = 0.millis)(action: => T): T = try {
     action
   } catch {

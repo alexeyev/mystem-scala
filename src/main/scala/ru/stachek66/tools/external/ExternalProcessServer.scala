@@ -27,15 +27,10 @@ private[external] class ExternalProcessServer(starterCommand: String) extends Sy
   def syncRequest(request: String): Try[String] = Try {
 
     writer.write(request)
-    // is it necessary?
     writer.newLine()
     writer.flush()
 
-    log.trace("waiting for reader, request = " + request)
-
     while (!bufferedReader.ready()) {}
-
-    log.trace("reader ready")
 
     val builder = new StringBuilder()
     while (bufferedReader.ready) builder.append(bufferedReader.readLine())
@@ -46,7 +41,7 @@ private[external] class ExternalProcessServer(starterCommand: String) extends Sy
     Try(p.exitValue()) match {
       case Success(_) => false
       case Failure(e: IllegalThreadStateException) => true
-      case Failure(e) => throw e // wtf
+      case Failure(e) => throw new RuntimeException(e) // unknown exception
     }
   }
 

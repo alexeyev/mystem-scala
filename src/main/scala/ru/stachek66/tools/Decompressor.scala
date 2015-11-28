@@ -1,6 +1,6 @@
 package ru.stachek66.tools
 
-import java.io.{File, FileOutputStream}
+import java.io.{IOException, File, FileOutputStream}
 
 import org.apache.commons.compress.archivers.ArchiveInputStream
 import org.apache.commons.io.IOUtils
@@ -16,14 +16,18 @@ trait Decompressor {
 
   def unpack(src: File, dst: File): File
 
+  @throws(classOf[IOException])
   private[tools] def copyUncompressedAndClose(stream: ArchiveInputStream, dest: File): File = {
     // must be read
     val entry = stream.getNextEntry
-    if (entry.isDirectory) throw new Exception("Crappy binaries are being used")
+    if (entry.isDirectory)
+      throw new IOException("Decompressed entry is a directory (unexpectedly)")
 
     val os = new FileOutputStream(dest)
-    try IOUtils.copy(stream, os)
-    finally {
+
+    try {
+      IOUtils.copy(stream, os)
+    } finally {
       os.close()
       stream.close()
     }
@@ -32,7 +36,6 @@ trait Decompressor {
 }
 
 object Decompressor {
-  //todo: use OS enums
   def select: Decompressor =
     if (Properties.CurrentOs.contains("win")) Zip else TarGz
 }

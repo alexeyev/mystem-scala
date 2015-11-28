@@ -1,6 +1,6 @@
 package ru.stachek66.tools
 
-import java.io.{BufferedInputStream, File, FileInputStream}
+import java.io.{IOException, BufferedInputStream, File, FileInputStream}
 
 import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream
 import org.slf4j.LoggerFactory
@@ -16,7 +16,10 @@ private object Zip extends Decompressor {
 
   def traditionalExtension: String = "zip"
 
-  /** Unzips single file */
+  /**
+   * Unzips single file
+   */
+  @throws(classOf[IOException])
   def unpack(src: File, dst: File): File = {
 
     log.debug(s"Unpacking $src to $dst...")
