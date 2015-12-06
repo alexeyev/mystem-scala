@@ -103,7 +103,7 @@ Anton Alekseev <anton.m.alexeyev@gmail.com>
 
 ## Thanks for reviews
 
-* Vladislav @darl
+* Vladislav @darl Dolbilov
 * Misha Malchevsky
 
 ## Also please see
