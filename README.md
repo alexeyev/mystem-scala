@@ -63,23 +63,6 @@ object AppExampleScala extends App {
 ###Java 
 
 ```java
-import ru.stachek66.nlp.mystem.holding.Factory;
-import ru.stachek66.nlp.mystem.holding.MyStem;
-import scala.Option;
-
-import java.io.File;
-
-public class MystemSingleton {
-
-    public final static MyStem mystemAnalyzer =
-            new Factory("-igd --eng-gr --format json --weight")
-                    .newMyStem(
-                            "3.0",
-                            Option.apply(new File("/home/coolguy/coolproject/3dparty/mystem"))).get();
-}
-```
-
-```java
 
 import ru.stachek66.nlp.mystem.holding.Factory;
 import ru.stachek66.nlp.mystem.holding.MyStem;
@@ -95,7 +78,7 @@ public class MystemJavaExample {
 
         public final static MyStem mystemAnalyzer =
                 new Factory("-igd --eng-gr --format json --weight")
-                        .newMyStem("3.0", Option.empty()).get();
+                        .newMyStem("3.0", Option.<File>empty()).get();
     }
 
     public static void main(final String[] args) throws MyStemApplicationException {
