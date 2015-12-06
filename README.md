@@ -63,7 +63,6 @@ object AppExampleScala extends App {
 ###Java 
 
 ```java
-
 import ru.stachek66.nlp.mystem.holding.Factory;
 import ru.stachek66.nlp.mystem.holding.MyStem;
 import ru.stachek66.nlp.mystem.holding.MyStemApplicationException;
@@ -72,22 +71,20 @@ import ru.stachek66.nlp.mystem.model.Info;
 import scala.Option;
 import scala.collection.JavaConversions;
 
-public class MystemJavaExample {
+import java.io.File;
 
-    public static class MystemSingleton {
+public class MyStemJavaExample {
 
-        public final static MyStem mystemAnalyzer =
-                new Factory("-igd --eng-gr --format json --weight")
-                        .newMyStem("3.0", Option.<File>empty()).get();
-    }
+    private final static MyStem mystemAnalyzer =
+            new Factory("-igd --eng-gr --format json --weight")
+                    .newMyStem("3.0", Option.<File>empty()).get();
 
     public static void main(final String[] args) throws MyStemApplicationException {
 
         final Iterable<Info> result =
                 JavaConversions.asJavaIterable(
-                        MystemSingleton
-                                .mystemAnalyzer
-                                .analyze(Request.apply("Есть загадочные девушки\n\n с магнитными глазами"))
+                        mystemAnalyzer
+                                .analyze(Request.apply("И вырвал грешный мой язык"))
                                 .info()
                                 .toIterable());
 
@@ -103,8 +100,8 @@ Anton Alekseev <anton.m.alexeyev@gmail.com>
 
 ## Thanks for reviews
 
-* Vladislav @darl Dolbilov
-* Misha Malchevsky
+* Vladislav Dolbilov, @darl
+* Mikhail Malchevsky
 
 ## Also please see
 
