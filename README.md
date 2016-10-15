@@ -98,10 +98,11 @@ public class MyStemJavaExample {
 
 Anton Alekseev <anton.m.alexeyev@gmail.com>
 
-## Thanks for reviews
+## Thanks for reviews and contributions
 
 * Vladislav Dolbilov, @darl
 * Mikhail Malchevsky
+* @anton-shirikov
 
 ## Also please see
 
