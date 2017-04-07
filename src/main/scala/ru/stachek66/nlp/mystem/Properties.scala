@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory
 
 /**
  * Various configs for interaction with outer world
- * alexeyev 
+ * alexeyev
  * 31.08.14.
  */
 object Properties {
