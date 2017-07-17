@@ -2,7 +2,7 @@ import Dependencies._
 
 val org = "ru.stachek66.nlp"
 val project_name = "mystem-scala"
-val project_version = "0.1.5"
+val project_version = "0.1.6"
 
 name := project_name
 
