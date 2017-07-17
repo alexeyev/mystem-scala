@@ -12,6 +12,14 @@ The wrapper should at least work on Ubuntu Linux 12.04+, and Windows 7+.
 
 ## Install
 
+### Sbt
+
+```scala
+resolvers += Resolver.bintrayRepo("merqlove", "maven")
+
+libraryDependencies += "ru.stachek66.nlp" %% "mystem-scala" % "0.1.5" 
+```
+
 ### Maven
 
 [Maven central](http://search.maven.org/#artifactdetails|ru.stachek66.nlp|mystem-scala|0.1.4|jar)
@@ -47,7 +55,7 @@ object MystemSingletonScala {
     new Factory("-igd --eng-gr --format json --weight")
       .newMyStem(
         "3.0",
-        Option(new File("/home/coolguy/coolproject/3dparty/mystem"))).get()
+        Option(new File("/home/coolguy/coolproject/3dparty/mystem"))).get
 }
 
 object AppExampleScala extends App {
@@ -82,7 +90,7 @@ public class MyStemJavaExample {
     public static void main(final String[] args) throws MyStemApplicationException {
 
         final Iterable<Info> result =
-                JavaConversions.asJavaIterable(
+                JavaConverters.asJavaIterable(
                         mystemAnalyzer
                                 .analyze(Request.apply("И вырвал грешный мой язык"))
                                 .info()
