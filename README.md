@@ -15,7 +15,7 @@ The wrapper should at least work on Ubuntu Linux 12.04+, and Windows 7+.
 ### Sbt
 
 ```scala
-resolvers += Resolver.bintrayRepo("merqlove", "maven")
+resolvers += Resolver.bintrayRepo("cnsa", "maven")
 
 libraryDependencies += "ru.stachek66.nlp" %% "mystem-scala" % "0.1.5" 
 ```

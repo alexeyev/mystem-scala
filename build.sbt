@@ -14,9 +14,9 @@ lazy val mystem_scala = (project in file("."))
 
 lazy val settings =
   commonSettings ++
-    gitSettings ++
-    publishSettings ++
-    bintraySettings
+  gitSettings ++
+  publishSettings ++
+  bintraySettings
 
 lazy val commonSettings =
   Seq(
@@ -24,7 +24,7 @@ lazy val commonSettings =
     organizationName := "NSA Ltd.",
     version := project_version,
     scalaVersion := "2.12.2",
-    licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0")),
+    licenses += ("MIT", url("http://opensource.org/licenses/MIT")),
     scalacOptions ++= Seq(
       "-unchecked",
       "-deprecation",
@@ -41,6 +41,7 @@ lazy val gitSettings =
     git.useGitDescribe := true
   )
 
+
 lazy val publishSettings =
   Seq(
     homepage := Some(url("https://github.com/cnsa/mystem-scala")),
@@ -55,5 +56,8 @@ lazy val publishSettings =
 
 lazy val bintraySettings =
   Seq(
-    bintrayPackage := "mystem-scala"
+    bintrayOrganization := Some("cnsa"),
+    bintrayRepository := "maven",
+    bintrayPackage := "mystem-scala",
+    bintrayPackageLabels := Seq("mystem", "scala")
   )
