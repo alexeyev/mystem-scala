@@ -26,26 +26,26 @@ import sbt._
 
 object Dependencies {
   resolvers ++= Seq(
-    Resolver.sonatypeRepo("snapshots")
+    Resolver.bintrayRepo("cnsa", "mystem-scala"),
+    Resolver.jcenterRepo
   )
 
+  lazy val jsonVersion      = "20170516"
+  lazy val logbackVersion   = "1.2.3"
+  lazy val slf4jVersion     = "1.7.25"
+  lazy val compressVersion  = "1.14"
+  lazy val tsConfigVersion  = "1.3.1"
+  lazy val commonsVersion   = "2.5"
   lazy val scalaTestVersion = "3.0.3"
-  lazy val slf4jVersion = "1.7.7"
-  lazy val logbackVersion = "1.1.3"
-  lazy val typeSafeConfigVersion = "1.2.1"
-  lazy val commonsVersion = "2.4"
-  lazy val surefireVersion = "2.7"
-  lazy val compressVersion = "1.2"
-  lazy val jsonVersion = "20140107"
 
   val allDeps =
     Seq(
-      "org.json" % "json" % jsonVersion,
-      "ch.qos.logback" % "logback-classic" % logbackVersion,
-      "org.slf4j" % "slf4j-api" % slf4jVersion,
+      "org.json"           % "json"             % jsonVersion,
+      "ch.qos.logback"     % "logback-classic"  % logbackVersion,
+      "org.slf4j"          % "slf4j-api"        % slf4jVersion,
       "org.apache.commons" % "commons-compress" % compressVersion,
-      "com.typesafe" % "config" % typeSafeConfigVersion,
-      "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
-      "commons-io" % "commons-io" % commonsVersion
+      "com.typesafe"       % "config"           % tsConfigVersion,
+      "commons-io"         % "commons-io"       % commonsVersion,
+      "org.scalatest"      %% "scalatest"       % scalaTestVersion % "test"
     )
 }
