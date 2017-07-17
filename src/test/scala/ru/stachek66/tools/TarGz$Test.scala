@@ -3,9 +3,7 @@ package ru.stachek66.tools
 import java.io.{File, FileInputStream}
 
 import org.apache.commons.io.IOUtils
-import org.junit.runner.RunWith
 import org.scalatest.FunSuite
-import org.scalatest.junit.JUnitRunner
 
 /**
  * alexeyev 

@@ -3,9 +3,7 @@ package ru.stachek66.tools
 import java.io.File
 import java.net.URL
 
-import org.junit.runner.RunWith
 import org.scalatest.{Ignore, FunSuite}
-import org.scalatest.junit.JUnitRunner
 
 /**
  * alexeyev 

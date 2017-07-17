@@ -34,8 +34,6 @@ object Dependencies {
   lazy val logbackVersion = "1.1.3"
   lazy val typeSafeConfigVersion = "1.2.1"
   lazy val commonsVersion = "2.4"
-  lazy val junitVersion = "4.12"
-  lazy val jUnitInterfaceV = "0.11"
   lazy val surefireVersion = "2.7"
   lazy val compressVersion = "1.2"
   lazy val jsonVersion = "20140107"
@@ -48,8 +46,6 @@ object Dependencies {
       "org.apache.commons" % "commons-compress" % compressVersion,
       "com.typesafe" % "config" % typeSafeConfigVersion,
       "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
-      "commons-io" % "commons-io" % commonsVersion,
-      "junit" % "junit" % junitVersion % "test",
-      "com.novocode" % "junit-interface" % jUnitInterfaceV % "test"
+      "commons-io" % "commons-io" % commonsVersion
     )
 }

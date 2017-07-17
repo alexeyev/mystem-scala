@@ -4,9 +4,6 @@ import java.io.{File, FileInputStream}
 
 import org.apache.commons.io.IOUtils
 import org.scalatest.FunSuite
-import org.scalatest.junit.JUnitRunner
-
-import org.junit.runner.RunWith
 
 /**
  * alexeyev 
