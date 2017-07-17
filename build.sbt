@@ -11,6 +11,7 @@ lazy val mystem_scala = (project in file("."))
   .settings(
     libraryDependencies ++= allDeps
   )
+  .enablePlugins(GitVersioning)
 
 lazy val settings =
   commonSettings ++
