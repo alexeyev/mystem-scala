@@ -1,5 +1,7 @@
 # A Scala wrapper for morphological analyzer Yandex.MyStem
 
+[ ![Download](https://api.bintray.com/packages/cnsa/maven/mystem-scala/images/download.svg) ](https://bintray.com/cnsa/maven/mystem-scala/_latestVersion)
+ 
 ## Introduction
 
 Details about the algorithm can be found in [I. Segalovich «A fast morphological algorithm with unknown word guessing induced by a dictionary for a web search engine», MLMTA-2003, Las Vegas, Nevada, USA.](http://download.yandex.ru/company/iseg-las-vegas.pdf)
