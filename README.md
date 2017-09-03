@@ -1,6 +1,6 @@
 # A Scala wrapper for morphological analyzer Yandex.MyStem
 
-[ ![Download](https://api.bintray.com/packages/cnsa/maven/mystem-scala/images/download.svg) ](https://bintray.com/cnsa/maven/mystem-scala/_latestVersion)
+[ ![Download](https://api.bintray.com/packages/alexeyev/maven/mystem-scala/images/download.svg) ](https://bintray.com/alexeyev/maven/mystem-scala/_latestVersion)
  
 ## Introduction
 
