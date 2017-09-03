@@ -49,7 +49,7 @@ lazy val settings =
 lazy val commonSettings =
   Seq(
     organization := org,
-    organizationName := "NSA Ltd.",
+    organizationName := "Anton Alekseev",
     version := project_version,
     scalaVersion := "2.12.2",
     licenses += ("MIT", url("http://opensource.org/licenses/MIT")),
@@ -67,7 +67,7 @@ lazy val commonSettings =
 lazy val resolverSettings =
   Seq(
     resolvers ++= Seq(
-      Resolver.bintrayRepo("cnsa", "mystem-scala"),
+      Resolver.bintrayRepo("alexeyev", "mystem-scala"),
       Resolver.jcenterRepo,
       Resolver.sonatypeRepo("snapshots")
     )
@@ -81,19 +81,19 @@ lazy val gitSettings =
 
 lazy val publishSettings =
   Seq(
-    homepage := Some(url("https://github.com/cnsa/mystem-scala")),
-    scmInfo := Some(ScmInfo(url("https://github.com/cnsa/mystem-scala"),
-      "git@github.com:cnsa/mystem-scala.git")),
-    developers += Developer("merqlove",
-      "Alexander Merkulov",
-      "sasha@merqlove.ru",
-      url("https://github.com/merqlove")),
+    homepage := Some(url("https://github.com/alexeyev/mystem-scala")),
+    scmInfo := Some(ScmInfo(url("https://github.com/alexeyev/mystem-scala"),
+      "git@github.com:alexeyev/mystem-scala.git")),
+    developers += Developer("alexeyev",
+      "Anton Alekseev",
+      "anton.m.alexeyev@gmail.com",
+      url("http://www.stachek66.ru/")),
     pomIncludeRepository := (_ => false)
   )
 
 lazy val bintraySettings =
   Seq(
-    bintrayOrganization := Some("cnsa"),
+    bintrayOrganization := Some("alexeyev"),
     bintrayRepository := "maven",
     bintrayPackage := "mystem-scala",
     bintrayPackageLabels := Seq("mystem", "scala")
