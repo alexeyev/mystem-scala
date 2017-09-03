@@ -1,5 +1,7 @@
 # A Scala wrapper for morphological analyzer Yandex.MyStem
 
+[ ![Download](https://api.bintray.com/packages/alexeyev/maven/mystem-scala/images/download.svg) ](https://bintray.com/alexeyev/maven/mystem-scala/_latestVersion)
+ 
 ## Introduction
 
 Details about the algorithm can be found in [I. Segalovich «A fast morphological algorithm with unknown word guessing induced by a dictionary for a web search engine», MLMTA-2003, Las Vegas, Nevada, USA.](http://download.yandex.ru/company/iseg-las-vegas.pdf)
@@ -11,6 +13,12 @@ The wrapper's code in under MIT license, but please remember that Yandex.MyStem 
 The wrapper should at least work on Ubuntu Linux 12.04+, and Windows 7+.
 
 ## Install
+
+### Sbt
+
+```scala
+libraryDependencies += "ru.stachek66.nlp" %% "mystem-scala" % "0.1.5" 
+```
 
 ### Maven
 
@@ -47,7 +55,7 @@ object MystemSingletonScala {
     new Factory("-igd --eng-gr --format json --weight")
       .newMyStem(
         "3.0",
-        Option(new File("/home/coolguy/coolproject/3dparty/mystem"))).get()
+        Option(new File("/home/coolguy/coolproject/3dparty/mystem"))).get
 }
 
 object AppExampleScala extends App {
@@ -82,7 +90,7 @@ public class MyStemJavaExample {
     public static void main(final String[] args) throws MyStemApplicationException {
 
         final Iterable<Info> result =
-                JavaConversions.asJavaIterable(
+                JavaConverters.asJavaIterable(
                         mystemAnalyzer
                                 .analyze(Request.apply("И вырвал грешный мой язык"))
                                 .info()

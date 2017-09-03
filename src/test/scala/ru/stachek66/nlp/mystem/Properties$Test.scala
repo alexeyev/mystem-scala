@@ -2,9 +2,7 @@ package ru.stachek66.nlp.mystem
 
 import java.net.URL
 
-import org.junit.runner.RunWith
 import org.scalatest.FunSuite
-import org.scalatest.junit.JUnitRunner
 
 /**
  * alexeyev 

@@ -77,7 +77,7 @@ class Factory(parsingOptions: String = "-igd --eng-gr --format json --weight") {
         try {
           Files.setPosixFilePermissions(destFile.toPath, PosixFilePermissions.fromString("r-xr-xr-x")).toFile
         } catch {
-          case ioe: IOException =>
+          case _: IOException =>
             log.warn("Can't set POSIX permissions to file " + destFile.toPath)
             destFile
         }
