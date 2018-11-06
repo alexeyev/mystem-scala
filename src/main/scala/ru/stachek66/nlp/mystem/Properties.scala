@@ -18,11 +18,11 @@ object Properties {
 
   private val systemOsName = System.getProperty("os.name")
   private val systemOsArchitecture = System.getProperty("os.arch")
-  val CurrentOs = os(systemOsName, systemOsArchitecture)
+  val CurrentOs: String = os(systemOsName, systemOsArchitecture)
 
   log.debug(s"OS detected: $CurrentOs, system properties: $systemOsName | $systemOsArchitecture ")
 
-  val BIN_FILE_NAME = CurrentOs match {
+  val BIN_FILE_NAME: String = CurrentOs match {
     case name if name.startsWith("win") => "mystem.exe"
     case name => "mystem"
   }

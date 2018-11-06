@@ -16,7 +16,7 @@ case class Response(info: Traversable[Info])
 
 trait MyStem {
 
-  def normalize(text: String) = text.replaceAll("\n", " ")
+  def normalize(text: String): String = text.replaceAll("\n", " ")
 
   @throws(classOf[MyStemApplicationException])
   def analyze(request: Request): Response
