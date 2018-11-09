@@ -8,7 +8,7 @@ The wrapper's code in under MIT license, but please remember that Yandex.MyStem 
 
 ## System Requirements
 
-The wrapper should at least work on Ubuntu Linux 12.04+, and Windows 7+.
+The wrapper should at least work on Ubuntu Linux 12.04+, Windows 7+ (+ people say it also works on OS X).
 
 ## Install
 
@@ -20,7 +20,7 @@ The wrapper should at least work on Ubuntu Linux 12.04+, and Windows 7+.
 <dependency>
   <groupId>ru.stachek66.nlp</groupId>
   <artifactId>mystem-scala</artifactId>
-  <version>0.1.4</version>
+  <version>0.1.5</version>
 </dependency>
 ```
 
@@ -98,11 +98,12 @@ public class MyStemJavaExample {
 
 Anton Alekseev <anton.m.alexeyev@gmail.com>
 
-## Thanks for reviews and contributions
+## Thanks for reviews, reports and contributions
 
 * Vladislav Dolbilov, @darl
 * Mikhail Malchevsky
 * @anton-shirikov
+* Filipp Malkovsky
 
 ## Also please see
 
