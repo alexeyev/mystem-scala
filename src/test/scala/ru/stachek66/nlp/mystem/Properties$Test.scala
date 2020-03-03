@@ -16,6 +16,8 @@ class Properties$Test extends FunSuite {
 
     assert(Properties.getUrl("3.0", "win32") === new URL("http://download.cdn.yandex.net/mystem/mystem-3.0-win7-32bit.zip"))
     assert(Properties.getUrl("3.0", "linux64") === new URL("http://download.cdn.yandex.net/mystem/mystem-3.0-linux3.1-64bit.tar.gz"))
+    assert(Properties.getUrl("3.1", "win64") === new URL("http://download.cdn.yandex.net/mystem/mystem-3.1-win-64bit.zip"))
+    assert(Properties.getUrl("3.1", "linux64") === new URL("http://download.cdn.yandex.net/mystem/mystem-3.1-linux-64bit.tar.gz"))
 
   }
 }

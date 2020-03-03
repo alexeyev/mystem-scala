@@ -20,13 +20,13 @@ The wrapper should at least work on Ubuntu Linux 12.04+, Windows 7+ (+ people sa
 <dependency>
   <groupId>ru.stachek66.nlp</groupId>
   <artifactId>mystem-scala</artifactId>
-  <version>0.1.5</version>
+  <version>0.1.6</version>
 </dependency>
 ```
 
 ## Issues
 
-Only mystem 3.0 is supported currently.
+Only mystem 3.{0,1} are supported currently.
 Please [create issues for compatibility troubles and other requests.](https://github.com/alexeyev/mystem-scala/issues)
 
 ## Examples

@@ -25,7 +25,7 @@ trait MyStem {
 class MyStemApplicationException(e: Throwable) extends java.lang.Exception
 
 // We need this because mystem.v < 3.0 doesn't support json AFAIK
-class MyStem30 private[holding](s: FailSafeExternalProcessServer) extends MyStem {
+class MyStem3 private[holding](s: FailSafeExternalProcessServer) extends MyStem {
 
   @throws(classOf[MyStemApplicationException])
   override def analyze(request: Request): Response = {

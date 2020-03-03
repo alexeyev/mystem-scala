@@ -26,6 +26,11 @@ class Downloader$Test extends FunSuite {
       mystem
     )
 
+    Downloader.downloadBinaryFile(
+      new URL("http://download.cdn.yandex.net/mystem/mystem-3.1-win-64bit.zip"),
+      mystem
+    )
+
     hello.delete
     mystem.delete
   }

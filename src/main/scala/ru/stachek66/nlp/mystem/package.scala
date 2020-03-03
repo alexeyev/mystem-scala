@@ -14,7 +14,8 @@ package object mystem {
     ("Linux", "x86_64") -> "linux64",
     ("Linux", "amd64") -> "linux64",
     ("Linux", "x86") -> "linux32",
-    ("Windows7", "x86") -> "win32"
+    ("Windows7", "x86") -> "win32",
+    ("Windows7", "x86_64") -> "win64"
   ) withDefault {
     _ =>
       log.warn("Getting OSX binaries!")

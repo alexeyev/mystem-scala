@@ -35,8 +35,8 @@ class Factory(parsingOptions: String = "-igd --eng-gr --format json --weight") {
     }
 
     version match {
-      case "3.0" =>
-        new MyStem30(
+      case "3.0" | "3.1" =>
+        new MyStem3(
           new FailSafeExternalProcessServer(
             ex.getAbsolutePath + (if (parsingOptions.nonEmpty) " " + parsingOptions else "")))
       case _ => throw new NotImplementedError()
