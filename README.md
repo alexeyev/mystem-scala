@@ -34,7 +34,7 @@ Please [create issues for compatibility troubles and other requests.](https://gi
 Probably the most important thing to remember when working with mystem-scala is 
 that you should have just one MyStem instance per mystem/mystem.exe file in your application.
 
-###Scala 
+### Scala 
 
 ```scala
 import java.io.File
@@ -60,7 +60,7 @@ object AppExampleScala extends App {
 }
 ```
 
-###Java 
+### Java 
 
 ```java
 import ru.stachek66.nlp.mystem.holding.Factory;
@@ -94,6 +94,24 @@ public class MyStemJavaExample {
     }
 }
 ```
+## How to Cite
+
+The references to this repository are highly appreciated, if you use our work. 
+
+```bibtex
+@misc{alekseev2018mystemscala, 
+    author = {Anton Alekseev}, 
+    title = {mystem-scala}, 
+    year = {2018}, 
+    publisher = {GitHub}, 
+    journal = {GitHub repository}, 
+    howpublished = {\url{https://github.com/alexeyev/mystem-scala/}}, 
+    commit = {the latest commit of the codebase you have used}
+}
+```
+
+If you do cite it, please do not forget to cite [the original algorithm's author's paper](http://download.yandex.ru/company/iseg-las-vegas.pdf) as well.
+
 ## Contacts
 
 Anton Alekseev <anton.m.alexeyev@gmail.com>
