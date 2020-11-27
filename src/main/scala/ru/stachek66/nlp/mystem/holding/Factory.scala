@@ -54,7 +54,7 @@ class Factory(parsingOptions: String = "-igd --eng-gr --format json --weight") {
       log.info("Old executable file found")
 
       try {
-        val suggestedVersion = (destFile.getAbsolutePath + " -v") !!
+        val suggestedVersion = (destFile.getAbsolutePath + " -v").!!
 
         log.info("Version | " + suggestedVersion)
         // not scala-way stuff
