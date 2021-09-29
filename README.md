@@ -122,6 +122,7 @@ Anton Alekseev <anton.m.alexeyev@gmail.com>
 * Mikhail Malchevsky
 * @anton-shirikov
 * Filipp Malkovsky
+* @dizzy7
 
 ## Also please see
 
