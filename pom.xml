@@ -6,7 +6,7 @@
 
     <groupId>ru.stachek66.nlp</groupId>
     <artifactId>mystem-scala</artifactId>
-    <version>0.1.6</version>
+    <version>0.2.0</version>
     <packaging>jar</packaging>
 
     <name>${project.groupId}:${project.artifactId}</name>
@@ -39,9 +39,9 @@
     </prerequisites>
 
     <properties>
-        <scala.base.version>2.11</scala.base.version>
-        <scala.version>${scala.base.version}.12</scala.version>
-        <scalatest.version>3.0.5</scalatest.version>
+        <scala.base.version>2.13</scala.base.version>
+        <scala.version>${scala.base.version}.4</scala.version>
+        <scalatest.version>3.0.9</scalatest.version>
         <slf4j.version>1.7.25</slf4j.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <logback.version>1.2.3</logback.version>
@@ -50,7 +50,7 @@
         <commons.version>2.4</commons.version>
         <junit.version>4.13.1</junit.version>
         <surefire.version>2.7</surefire.version>
-        <scoverage.plugin.version>1.0.4</scoverage.plugin.version>
+        <scoverage.plugin.version>1.4.9</scoverage.plugin.version>
         <compress.version>1.20</compress.version>
     </properties>
 
@@ -190,26 +190,9 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.scoverage</groupId>
-                <artifactId>scoverage-maven-plugin</artifactId>
-                <version>${scoverage.plugin.version}</version>
-                <configuration>
-                    <minimumCoverage>35</minimumCoverage>
-                    <failOnMinimumCoverage>true</failOnMinimumCoverage>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>coverage</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
+                <version>3.2.1</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -222,6 +205,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.2.0</version>
                 <configuration>
                     <outputDirectory>${project.build.directory}</outputDirectory>
                     <reportOutputDirectory>${project.reporting.outputDirectory}</reportOutputDirectory>
@@ -255,14 +239,6 @@
 
     <reporting>
         <plugins>
-            <plugin>
-                <groupId>org.scoverage</groupId>
-                <artifactId>scoverage-maven-plugin</artifactId>
-                <version>${scoverage.plugin.version}</version>
-                <configuration>
-                    <highlighting>true</highlighting>
-                </configuration>
-            </plugin>
         </plugins>
     </reporting>
 

@@ -22,7 +22,8 @@ class TarGz$Test extends FunSuite {
         val content0 = IOUtils.toString(new FileInputStream(f))
         val content1 = IOUtils.toString(new FileInputStream(src))
         print(content0.trim + " vs " + content1.trim)
-        assert(content0 === content1)
+        // trimming thanks to line separators; should be more careful maybe
+        assert(content0.trim === content1.trim)
     }
   }
 }

@@ -15,7 +15,7 @@ object GrammarMapBuilder {
       tagToEnum(AdjectiveForms) ++ tagToEnum(Person) ++ tagToEnum(Case)
       ).toMap
 
-  private def tagToEnum(enum: Enumeration) = enum.values.map(value => value.toString -> enum)
+  private def tagToEnum(enum: Enumeration): Set[(String, Enumeration)] = enum.values.unsorted.map(value => value.toString -> enum)
 }
 
 object POS extends Enumeration {
