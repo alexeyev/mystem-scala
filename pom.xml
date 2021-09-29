@@ -50,7 +50,7 @@
         <commons.version>2.4</commons.version>
         <junit.version>4.12</junit.version>
         <surefire.version>2.7</surefire.version>
-        <scoverage.plugin.version>1.0.4</scoverage.plugin.version>
+        <scoverage.plugin.version>1.4.9</scoverage.plugin.version>
         <compress.version>1.20</compress.version>
     </properties>
 
@@ -190,24 +190,6 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.scoverage</groupId>
-                <artifactId>scoverage-maven-plugin</artifactId>
-                <version>${scoverage.plugin.version}</version>
-                <configuration>
-                    <minimumCoverage>35</minimumCoverage>
-                    <failOnMinimumCoverage>true</failOnMinimumCoverage>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>coverage</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
                 <version>3.2.1</version>
@@ -257,14 +239,6 @@
 
     <reporting>
         <plugins>
-            <plugin>
-                <groupId>org.scoverage</groupId>
-                <artifactId>scoverage-maven-plugin</artifactId>
-                <version>${scoverage.plugin.version}</version>
-                <configuration>
-                    <highlighting>true</highlighting>
-                </configuration>
-            </plugin>
         </plugins>
     </reporting>
 
