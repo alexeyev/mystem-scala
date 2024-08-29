@@ -42,9 +42,9 @@
         <scala.base.version>2.13</scala.base.version>
         <scala.version>${scala.base.version}.4</scala.version>
         <scalatest.version>3.0.9</scalatest.version>
-        <slf4j.version>1.7.25</slf4j.version>
+        <slf4j.version>1.7.32</slf4j.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <logback.version>1.2.3</logback.version>
+        <logback.version>1.2.13</logback.version>
         <scala.plugin.version>3.2.0</scala.plugin.version>
         <typesafe.config.version>1.2.1</typesafe.config.version>
         <commons.version>2.7</commons.version>
