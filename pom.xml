@@ -6,7 +6,7 @@
 
     <groupId>ru.stachek66.nlp</groupId>
     <artifactId>mystem-scala</artifactId>
-    <version>0.2.0</version>
+    <version>0.2.1</version>
     <packaging>jar</packaging>
 
     <name>${project.groupId}:${project.artifactId}</name>
@@ -45,12 +45,12 @@
         <slf4j.version>1.7.32</slf4j.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <logback.version>1.2.13</logback.version>
-        <scala.plugin.version>3.2.0</scala.plugin.version>
+        <scala.plugin.version>4.5.6</scala.plugin.version>
         <typesafe.config.version>1.2.1</typesafe.config.version>
         <commons.version>2.15.1</commons.version>
         <junit.version>4.13.1</junit.version>
         <surefire.version>2.7</surefire.version>
-        <scoverage.plugin.version>1.4.9</scoverage.plugin.version>
+        <scoverage.plugin.version>1.4.11</scoverage.plugin.version>
         <compress.version>1.26.0</compress.version>
     </properties>
 
@@ -121,6 +121,16 @@
     </dependencies>
 
     <build>
+        <pluginManagement>
+          <plugins>
+            <plugin>
+              <groupId>org.scoverage</groupId>
+              <artifactId>scoverage-maven-plugin</artifactId>
+              <version>${scoverage.plugin.version}</version>
+            </plugin>
+          </plugins>
+        </pluginManagement>
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -185,6 +195,23 @@
                         <id>scala-test</id>
                         <goals>
                             <goal>test</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.scoverage</groupId>
+                <artifactId>scoverage-maven-plugin</artifactId>
+                <configuration>
+                    <minimumCoverage>30</minimumCoverage>
+                    <failOnMinimumCoverage>true</failOnMinimumCoverage>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>coverage</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>check</goal>
                         </goals>
                     </execution>
                 </executions>
