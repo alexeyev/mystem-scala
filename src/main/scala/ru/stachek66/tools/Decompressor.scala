@@ -3,6 +3,7 @@ package ru.stachek66.tools
 import java.io.{IOException, File, FileOutputStream}
 
 import org.apache.commons.compress.archivers.ArchiveInputStream
+import org.apache.commons.compress.archivers.ArchiveEntry
 import org.apache.commons.io.IOUtils
 import ru.stachek66.nlp.mystem.Properties
 
@@ -17,7 +18,8 @@ trait Decompressor {
   def unpack(src: File, dst: File): File
 
   @throws(classOf[IOException])
-  private[tools] def copyUncompressedAndClose(stream: ArchiveInputStream, dest: File): File = {
+  private[tools] def copyUncompressedAndClose(stream: ArchiveInputStream[_ <: ArchiveEntry], dest: File): File = {
+
     // must be read
     val entry = stream.getNextEntry
     if (entry.isDirectory)
