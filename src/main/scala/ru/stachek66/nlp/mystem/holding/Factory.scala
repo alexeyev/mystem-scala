@@ -55,19 +55,12 @@ class Factory(parsingOptions: String = "-igd --eng-gr --format json --weight") {
 
     if (destFile.exists) {
       log.info("Old executable file found")
-
-      try {
-        val suggestedVersion = (destFile.getAbsolutePath + " -v").!!
-        log.info("Version | " + suggestedVersion)
-        if (suggestedVersion.contains(version))
-          destFile
-        else
-          throw new Exception("Wrong version!")
-      } catch {
-        case e: Exception =>
-          log.warn("Removing old binary files...", e)
-          val _ = destFile.delete()
-          getExecutable(version)
+      if (isCorrectVersion(destFile, version)) {
+        destFile
+      } else {
+        log.warn(s"Wrong version at ${destFile.getAbsolutePath}; removing old binary file")
+        val _ = destFile.delete()
+        getExecutable(version)
       }
     } else {
       Tools.withAttempt(10, 1.second) {
@@ -89,5 +82,32 @@ class Factory(parsingOptions: String = "-igd --eng-gr --format json --weight") {
       }
     }
   }
+
+  /** Run `<executable> -v` and check whether the printed version line
+    * contains the requested version string. Used by [[getExecutable]] to
+    * decide whether to reuse a cached binary or delete it and re-fetch.
+    *
+    * Returns `false` rather than throwing on any failure (file missing,
+    * non-executable, exits non-zero, prints something we can't read) —
+    * the caller's response to "version doesn't match" is the same as
+    * "couldn't tell": delete and re-fetch.
+    *
+    * `private[holding]` to expose for unit testing without making it
+    * part of the public Factory API.
+    */
+  private[holding] def isCorrectVersion(executable: java.io.File, version: String): Boolean =
+    scala.util.Try {
+      // `!!` runs the process and returns stdout, throwing if the command
+      // can't be exec'd or exits non-zero. Both failure modes correctly
+      // collapse into "Failure" here and become `false` below.
+      val printed = (executable.getAbsolutePath + " -v").!!
+      log.info(s"Version probe on ${executable.getName} printed: ${printed.trim}")
+      printed.contains(version)
+    } match {
+      case scala.util.Success(matches) => matches
+      case scala.util.Failure(t) =>
+        log.warn(s"Could not check version of ${executable.getAbsolutePath}: ${t.getMessage}")
+        false
+    }
 
 }

@@ -25,6 +25,9 @@ The artifact is cross-built for **Scala 2.12** and **Scala 2.13**.
 
 ### Maven
 
+TODO: deploy recent improvements
+
+
 ```xml
 <!-- For Scala 2.13 -->
 <dependency>
