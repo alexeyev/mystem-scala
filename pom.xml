@@ -112,6 +112,23 @@
                 <artifactId>scala-reflect</artifactId>
                 <version>${scala.version}</version>
             </dependency>
+
+            <!--
+                commons-compress 1.27.1 transitively pulls in commons-io 2.16.1;
+                we directly depend on 2.18.0. dependencyConvergence rightly
+                refuses to choose, so we pin the resolved version explicitly.
+                Same trick for slf4j-api, which logback drags in transitively.
+            -->
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${commons.io.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
