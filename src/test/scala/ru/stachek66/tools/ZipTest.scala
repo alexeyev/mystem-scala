@@ -73,6 +73,54 @@ class ZipTest extends AnyFunSuite {
     assert(msg.nonEmpty, "the exception must explain itself")
   }
 
+  test("unpacking an EMPTY zip surfaces an `Archive is empty` IOException") {
+    // Edge case from Decompressor.copyUncompressedAndClose: getNextEntry
+    // returning null means we have a structurally-valid but empty
+    // archive. We refuse rather than silently producing a 0-byte output
+    // file the user might mistake for a successful extract.
+    val zip = File.createTempFile("mystem-scala-zip-empty-", ".zip")
+    zip.deleteOnExit()
+    val out = new ZipArchiveOutputStream(new FileOutputStream(zip))
+    try out.finish()
+    finally out.close()
+
+    val dst = File.createTempFile("mystem-scala-zip-empty-out-", ".out")
+    dst.deleteOnExit()
+
+    val ex = intercept[IOException](Zip.unpack(zip, dst))
+    assert(
+      ex.getMessage.toLowerCase.contains("empty"),
+      s"expected `empty`-flavoured message, got: ${ex.getMessage}"
+    )
+  }
+
+  test("unpacking a zip whose first entry is a DIRECTORY raises an IOException") {
+    // The mystem release zip ships a single executable as its first entry.
+    // If a future packaging change moves the executable behind a
+    // directory entry, we want a loud failure rather than silently
+    // producing a directory-named output file. Pin the contract.
+    val zip = File.createTempFile("mystem-scala-zip-dir-first-", ".zip")
+    zip.deleteOnExit()
+    val out = new ZipArchiveOutputStream(new FileOutputStream(zip))
+    try {
+      val dirEntry = new ZipArchiveEntry("subdir/")
+      out.putArchiveEntry(dirEntry)
+      out.closeArchiveEntry()
+    } finally {
+      out.finish()
+      out.close()
+    }
+
+    val dst = File.createTempFile("mystem-scala-zip-dir-first-out-", ".out")
+    dst.deleteOnExit()
+
+    val ex = intercept[IOException](Zip.unpack(zip, dst))
+    assert(
+      ex.getMessage.toLowerCase.contains("directory"),
+      s"expected `directory`-flavoured message, got: ${ex.getMessage}"
+    )
+  }
+
   // -- Helpers ------------------------------------------------------------
 
   private def readAllText(f: File): String = {

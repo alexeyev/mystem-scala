@@ -25,19 +25,22 @@ The artifact is cross-built for **Scala 2.12** and **Scala 2.13**.
 
 ### Maven
 
+TODO: deploy recent improvements
+
+
 ```xml
 <!-- For Scala 2.13 -->
 <dependency>
     <groupId>ru.stachek66.nlp</groupId>
     <artifactId>mystem-scala_2.13</artifactId>
-    <version>0.3.0</version>
+    <version>0.3.1</version>
 </dependency>
 
 <!-- For Scala 2.12 -->
 <dependency>
     <groupId>ru.stachek66.nlp</groupId>
     <artifactId>mystem-scala_2.12</artifactId>
-    <version>0.3.0</version>
+    <version>0.3.1</version>
 </dependency>
 ```
 
