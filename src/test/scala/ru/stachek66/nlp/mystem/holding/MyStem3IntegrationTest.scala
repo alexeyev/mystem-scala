@@ -6,30 +6,29 @@ import org.scalatest.funsuite.AnyFunSuite
 
 import ru.stachek66.nlp.mystem.parsing.GrammarInfoParsing
 
-/**
- * End-to-end integration test that drives the actual `mystem` binary.
- *
- * Opt-in: point the test at a binary via either
- *   - the `MYSTEM_BINARY` environment variable, or
- *   - the `mystem.binary` JVM system property (takes precedence).
- *
- * If neither is set, every test in this class is skipped via `assume`.
- * To run locally:
- *
- *   `mvn -Dmystem.binary=/abs/path/to/mystem test`
- *
- * Why an integration test on top of unit tests? Two specific properties
- * only manifest end-to-end:
- *   - The JSON we feed [[ru.stachek66.nlp.mystem.parsing.JsonRepresentationParser]]
- *     in unit tests really matches what mystem emits under the
- *     `-igd --eng-gr --format json --weight` flags (the wrapper's defaults).
- *     Note that mystem's default behaviour DROPS punctuation/whitespace
- *     entirely; the `-c` flag would preserve them as `{"text":" "}` tokens.
- *     We test the default flag set, which is what most callers use.
- *   - The line-buffering/process-lifecycle loop in
- *     [[ru.stachek66.tools.external.ExternalProcessServer]] terminates
- *     correctly against a real CLI rather than only against an echo loop.
- */
+/** End-to-end integration test that drives the actual `mystem` binary.
+  *
+  * Opt-in: point the test at a binary via either
+  *   - the `MYSTEM_BINARY` environment variable, or
+  *   - the `mystem.binary` JVM system property (takes precedence).
+  *
+  * If neither is set, every test in this class is skipped via `assume`.
+  * To run locally:
+  *
+  *   `mvn -Dmystem.binary=/abs/path/to/mystem test`
+  *
+  * Why an integration test on top of unit tests? Two specific properties
+  * only manifest end-to-end:
+  *   - The JSON we feed [[ru.stachek66.nlp.mystem.parsing.JsonRepresentationParser]]
+  *     in unit tests really matches what mystem emits under the
+  *     `-igd --eng-gr --format json --weight` flags (the wrapper's defaults).
+  *     Note that mystem's default behaviour DROPS punctuation/whitespace
+  *     entirely; the `-c` flag would preserve them as `{"text":" "}` tokens.
+  *     We test the default flag set, which is what most callers use.
+  *   - The line-buffering/process-lifecycle loop in
+  *     [[ru.stachek66.tools.external.ExternalProcessServer]] terminates
+  *     correctly against a real CLI rather than only against an echo loop.
+  */
 class MyStem3IntegrationTest extends AnyFunSuite {
 
   /** Resolve the binary path (system property → env var → None). */
@@ -39,19 +38,18 @@ class MyStem3IntegrationTest extends AnyFunSuite {
     fromProp.orElse(fromEnv).map(new File(_)).filter(_.canExecute)
   }
 
-  private def assumeBinary(): Unit =
-    assume(
-      binary.isDefined,
-      "set -Dmystem.binary=<path> or MYSTEM_BINARY=<path> to enable integration tests"
-    )
+  private def assumeBinary(): Unit = assume(
+    binary.isDefined,
+    "set -Dmystem.binary=<path> or MYSTEM_BINARY=<path> to enable integration tests"
+  )
 
-  /**
-   * Construct a fresh [[MyStem3]] for one test and reliably tear it down.
-   * Per-test instances give sharper diagnostics when something fails.
-   */
+  /** Construct a fresh [[MyStem3]] for one test and reliably tear it down.
+    * Per-test instances give sharper diagnostics when something fails.
+    */
   private def withMystem[A](f: MyStem => A): A = {
     val m = new Factory().newMyStem("3.1", binary).get
-    try f(m) finally m.close()
+    try f(m)
+    finally m.close()
   }
 
   // -- Smoke ---------------------------------------------------------------

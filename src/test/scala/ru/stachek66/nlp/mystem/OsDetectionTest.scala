@@ -2,15 +2,14 @@ package ru.stachek66.nlp.mystem
 
 import org.scalatest.funsuite.AnyFunSuite
 
-/**
- * Behavioral spec for the `(os.name, os.arch)` → `mystem-sources.conf` suffix
- * mapping.
- *
- * The mapping has to be defensive: the JVM reports `os.name` with arbitrary
- * vendor-decided strings ("Windows 10", "Mac OS X", "Darwin", "Linux", and
- * the long tail), and any wrong fallback hits the user with the wrong
- * download URL. We pin the table here so any future change is intentional.
- */
+/** Behavioral spec for the `(os.name, os.arch)` → `mystem-sources.conf` suffix
+  * mapping.
+  *
+  * The mapping has to be defensive: the JVM reports `os.name` with arbitrary
+  * vendor-decided strings ("Windows 10", "Mac OS X", "Darwin", "Linux", and
+  * the long tail), and any wrong fallback hits the user with the wrong
+  * download URL. We pin the table here so any future change is intentional.
+  */
 class OsDetectionTest extends AnyFunSuite {
 
   // -- Windows ------------------------------------------------------------

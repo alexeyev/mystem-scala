@@ -8,9 +8,8 @@ import org.apache.commons.compress.archivers.tar.{TarArchiveEntry, TarArchiveOut
 import org.apache.commons.io.IOUtils
 import org.scalatest.funsuite.AnyFunSuite
 
-/**
- * Behavioral spec for [[TarGz]]. Mirror of [[ZipTest]]; same contract.
- */
+/** Behavioral spec for [[TarGz]]. Mirror of [[ZipTest]]; same contract.
+  */
 class TarGzTest extends AnyFunSuite {
 
   test("traditionalExtension is `tar.gz`") {
@@ -30,7 +29,7 @@ class TarGzTest extends AnyFunSuite {
 
   test("unpacking a multi-entry archive extracts only the first entry") {
     val multi = makeMultiEntryTarGz(
-      "first-entry"  -> "FIRST",
+      "first-entry" -> "FIRST",
       "second-entry" -> "SECOND"
     )
     val out = File.createTempFile("mystem-scala-tgz-multi-", ".out")
@@ -80,4 +79,5 @@ class TarGzTest extends AnyFunSuite {
     }
     tgz
   }
+
 }

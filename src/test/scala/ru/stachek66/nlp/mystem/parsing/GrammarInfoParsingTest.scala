@@ -4,22 +4,21 @@ import org.scalatest.funsuite.AnyFunSuite
 
 import ru.stachek66.nlp.mystem.model._
 
-/**
- * Behavioral spec for the comma/equals-separated tag string parser.
- *
- * Pinned contract:
- *   - Each token in the tag string is looked up in [[GrammarMapBuilder.tagToEnumMap]]
- *     and routed to the matching field on [[GrammarInfo]].
- *   - Multiple tags routed to the same field accumulate (Set semantics).
- *   - Round-trip (`toStringRepresentation` → `toGrammarInfo`) is structural-equal
- *     for any GrammarInfo whose every category lives on a [[GrammarInfo]] field.
- *   - Unknown tags surface a NoSuchElementException — we don't silently drop
- *     them, because that would make stale analyses look like valid ones.
- *
- * Known limitations are pinned with explicit tests so future refactors are
- * forced to be intentional about them. See `parens-pinning` and the
- * `person tag` test below.
- */
+/** Behavioral spec for the comma/equals-separated tag string parser.
+  *
+  * Pinned contract:
+  *   - Each token in the tag string is looked up in [[GrammarMapBuilder.tagToEnumMap]]
+  *     and routed to the matching field on [[GrammarInfo]].
+  *   - Multiple tags routed to the same field accumulate (Set semantics).
+  *   - Round-trip (`toStringRepresentation` → `toGrammarInfo`) is structural-equal
+  *     for any GrammarInfo whose every category lives on a [[GrammarInfo]] field.
+  *   - Unknown tags surface a NoSuchElementException — we don't silently drop
+  *     them, because that would make stale analyses look like valid ones.
+  *
+  * Known limitations are pinned with explicit tests so future refactors are
+  * forced to be intentional about them. See `parens-pinning` and the
+  * `person tag` test below.
+  */
 class GrammarInfoParsingTest extends AnyFunSuite {
 
   import GrammarInfoParsing._
@@ -130,17 +129,50 @@ class GrammarInfoParsingTest extends AnyFunSuite {
 
   test("GrammarMapBuilder includes every tag we exercise above") {
     val tags = Seq(
-      "S", "V", "A", "ADV", "PART", "CONJ", "PR", "INTJ", "NUM", // POS
-      "f", "m", "n",                                             // Gender
-      "anim", "inan",                                            // Animacy
-      "nom", "gen", "dat", "acc", "ins", "loc",                  // Case
-      "sg", "pl",                                                // Number
-      "ipf", "pf",                                               // Aspect
-      "praes", "past", "inpraes",                                // Tense
-      "ind", "imper", "tran", "intr", "inf", "partcp", "ger",    // VerbForms
-      "plen", "brev", "poss", "supr", "comp",                    // AdjectiveForms
-      "act", "pass",                                             // Voice
-      "1p", "2p", "3p"                                           // Person
+      "S",
+      "V",
+      "A",
+      "ADV",
+      "PART",
+      "CONJ",
+      "PR",
+      "INTJ",
+      "NUM", // POS
+      "f",
+      "m",
+      "n", // Gender
+      "anim",
+      "inan", // Animacy
+      "nom",
+      "gen",
+      "dat",
+      "acc",
+      "ins",
+      "loc", // Case
+      "sg",
+      "pl", // Number
+      "ipf",
+      "pf", // Aspect
+      "praes",
+      "past",
+      "inpraes", // Tense
+      "ind",
+      "imper",
+      "tran",
+      "intr",
+      "inf",
+      "partcp",
+      "ger", // VerbForms
+      "plen",
+      "brev",
+      "poss",
+      "supr",
+      "comp", // AdjectiveForms
+      "act",
+      "pass", // Voice
+      "1p",
+      "2p",
+      "3p" // Person
     )
     val missing = tags.filterNot(GrammarMapBuilder.tagToEnumMap.contains)
     assert(missing.isEmpty, s"GrammarMapBuilder is missing: ${missing.mkString(", ")}")
@@ -150,18 +182,36 @@ class GrammarInfoParsingTest extends AnyFunSuite {
     // Catches a class of mistake: a tag accidentally registered under the
     // wrong enum (e.g., "nom" landing in Gender instead of Case).
     val expectations = Map(
-      "S" -> POS, "V" -> POS, "A" -> POS,
-      "f" -> Gender, "m" -> Gender, "n" -> Gender,
-      "anim" -> Animacy, "inan" -> Animacy,
-      "nom" -> Case, "gen" -> Case, "acc" -> Case,
-      "sg" -> Number, "pl" -> Number,
-      "ipf" -> Aspect, "pf" -> Aspect,
-      "praes" -> Tense, "past" -> Tense,
-      "1p" -> Person, "2p" -> Person, "3p" -> Person,
-      "ind" -> VerbForms, "imper" -> VerbForms, "intr" -> VerbForms, "tran" -> VerbForms,
-      "act" -> Voice, "pass" -> Voice,
-      "plen" -> AdjectiveForms, "brev" -> AdjectiveForms,
-      "parenth" -> Other, "geo" -> Other
+      "S" -> POS,
+      "V" -> POS,
+      "A" -> POS,
+      "f" -> Gender,
+      "m" -> Gender,
+      "n" -> Gender,
+      "anim" -> Animacy,
+      "inan" -> Animacy,
+      "nom" -> Case,
+      "gen" -> Case,
+      "acc" -> Case,
+      "sg" -> Number,
+      "pl" -> Number,
+      "ipf" -> Aspect,
+      "pf" -> Aspect,
+      "praes" -> Tense,
+      "past" -> Tense,
+      "1p" -> Person,
+      "2p" -> Person,
+      "3p" -> Person,
+      "ind" -> VerbForms,
+      "imper" -> VerbForms,
+      "intr" -> VerbForms,
+      "tran" -> VerbForms,
+      "act" -> Voice,
+      "pass" -> Voice,
+      "plen" -> AdjectiveForms,
+      "brev" -> AdjectiveForms,
+      "parenth" -> Other,
+      "geo" -> Other
     )
     expectations.foreach { case (tag, expectedEnum) =>
       assert(

@@ -5,28 +5,26 @@ import org.scalatest.funsuite.AnyFunSuite
 
 import ru.stachek66.nlp.mystem.model.Info
 
-/**
- * Behavioral spec for [[JsonRepresentationParser.toInfo]].
- *
- * The parser consumes the JSON line that mystem 3.x emits per `analyze`
- * round-trip and produces one [[Info]] per surface token. The contract:
- *
- *   - Each token contributes exactly one Info; ordering is preserved.
- *   - When `analysis` is absent or empty, `lex` is `None`.
- *   - When `analysis` has multiple entries (homonyms), the FIRST one's lex
- *     is taken — downstream callers depend on this for compatibility.
- *   - `rawResponse` carries the JSON for that token, not the whole line.
- *   - Malformed JSON surfaces a JSONException; we don't try to "recover"
- *     because doing so would silently lose tokens.
- *   - The returned Iterable is strict (re-iterable, not lazy).
- */
+/** Behavioral spec for [[JsonRepresentationParser.toInfo]].
+  *
+  * The parser consumes the JSON line that mystem 3.x emits per `analyze`
+  * round-trip and produces one [[Info]] per surface token. The contract:
+  *
+  *   - Each token contributes exactly one Info; ordering is preserved.
+  *   - When `analysis` is absent or empty, `lex` is `None`.
+  *   - When `analysis` has multiple entries (homonyms), the FIRST one's lex
+  *     is taken — downstream callers depend on this for compatibility.
+  *   - `rawResponse` carries the JSON for that token, not the whole line.
+  *   - Malformed JSON surfaces a JSONException; we don't try to "recover"
+  *     because doing so would silently lose tokens.
+  *   - The returned Iterable is strict (re-iterable, not lazy).
+  */
 class JsonRepresentationParserTest extends AnyFunSuite {
 
   // -- Happy-path single-token cases --------------------------------------
 
   test("a single analysed token yields its lex") {
-    val json =
-      """[{"analysis":[{"lex":"мама","wt":1,"gr":"S,f,inan=nom,sg"}],"text":"мама"}]"""
+    val json = """[{"analysis":[{"lex":"мама","wt":1,"gr":"S,f,inan=nom,sg"}],"text":"мама"}]"""
     val out = JsonRepresentationParser.toInfo(json).toVector
     assert(out.size === 1)
     assert(out.head.initial === "мама")

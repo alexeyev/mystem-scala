@@ -2,20 +2,19 @@ package ru.stachek66.tools.external
 
 import org.scalatest.funsuite.AnyFunSuite
 
-/**
- * Behavioral spec for [[ExternalProcessServer]].
- *
- * `ExternalProcessServer` is package-private, but tests in the same package
- * can reach it directly. We exercise the lifecycle here via the `isAlive`
- * accessor — that's the strongest in-process check we have without forking
- * another JVM (the shutdown-hook firing test for [[FailSafeExternalProcessServer]]
- * does that separately).
- *
- * `/bin/sleep` is the smallest, most portable long-running stand-in for a
- * real `mystem`. It's available on every Unix-like CI runner Ubuntu /
- * macOS, has no startup quirks, and never reads its stdin or writes to its
- * stdout — exactly what we need for a lifecycle-only check.
- */
+/** Behavioral spec for [[ExternalProcessServer]].
+  *
+  * `ExternalProcessServer` is package-private, but tests in the same package
+  * can reach it directly. We exercise the lifecycle here via the `isAlive`
+  * accessor — that's the strongest in-process check we have without forking
+  * another JVM (the shutdown-hook firing test for [[FailSafeExternalProcessServer]]
+  * does that separately).
+  *
+  * `/bin/sleep` is the smallest, most portable long-running stand-in for a
+  * real `mystem`. It's available on every Unix-like CI runner Ubuntu /
+  * macOS, has no startup quirks, and never reads its stdin or writes to its
+  * stdout — exactly what we need for a lifecycle-only check.
+  */
 class ExternalProcessServerTest extends AnyFunSuite {
 
   private val isUnixLike: Boolean = !sys.props("os.name").toLowerCase.startsWith("windows")

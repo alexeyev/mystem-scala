@@ -5,19 +5,18 @@ import java.net.URL
 
 import org.scalatest.funsuite.AnyFunSuite
 
-/**
- * Behavioral spec for [[Properties]].
- *
- * Pinned contract:
- *   - For every supported (mystem-version, os-suffix) pair declared in
- *     `mystem-sources.conf`, `getUrl` returns the documented URL verbatim.
- *   - Malformed version strings are rejected with a useful message.
- *   - Unknown version / unknown OS combinations fail with a message naming
- *     the offending parameter — important for diagnosing the most common
- *     "why isn't this downloading" support requests.
- *   - `BIN_FILE_NAME` resolves to the right filename per OS.
- *   - `BinDestination` points at a writable per-user location.
- */
+/** Behavioral spec for [[Properties]].
+  *
+  * Pinned contract:
+  *   - For every supported (mystem-version, os-suffix) pair declared in
+  *     `mystem-sources.conf`, `getUrl` returns the documented URL verbatim.
+  *   - Malformed version strings are rejected with a useful message.
+  *   - Unknown version / unknown OS combinations fail with a message naming
+  *     the offending parameter — important for diagnosing the most common
+  *     "why isn't this downloading" support requests.
+  *   - `BIN_FILE_NAME` resolves to the right filename per OS.
+  *   - `BinDestination` points at a writable per-user location.
+  */
 class PropertiesTest extends AnyFunSuite {
 
   // -- Happy-path URL resolution -----------------------------------------
@@ -28,15 +27,15 @@ class PropertiesTest extends AnyFunSuite {
     // time. The URL strings here intentionally duplicate the conf — the
     // goal is to detect drift, not to DRY.
     val cases: Seq[((String, String), String)] = Seq(
-      ("3.0", "win32")    -> "http://download.cdn.yandex.net/mystem/mystem-3.0-win7-32bit.zip",
-      ("3.0", "win64")    -> "http://download.cdn.yandex.net/mystem/mystem-3.0-win7-64bit.zip",
-      ("3.0", "linux32")  -> "http://download.cdn.yandex.net/mystem/mystem-3.0-linux3.5-32bit.tar.gz",
-      ("3.0", "linux64")  -> "http://download.cdn.yandex.net/mystem/mystem-3.0-linux3.1-64bit.tar.gz",
+      ("3.0", "win32") -> "http://download.cdn.yandex.net/mystem/mystem-3.0-win7-32bit.zip",
+      ("3.0", "win64") -> "http://download.cdn.yandex.net/mystem/mystem-3.0-win7-64bit.zip",
+      ("3.0", "linux32") -> "http://download.cdn.yandex.net/mystem/mystem-3.0-linux3.5-32bit.tar.gz",
+      ("3.0", "linux64") -> "http://download.cdn.yandex.net/mystem/mystem-3.0-linux3.1-64bit.tar.gz",
       ("3.0", "freebsd64") -> "http://download.cdn.yandex.net/mystem/mystem-3.0-freebsd9.0-64bit.tar.gz",
-      ("3.0", "osx")      -> "http://download.cdn.yandex.net/mystem/mystem-3.0-macosx10.8.tar.gz",
-      ("3.1", "win64")    -> "http://download.cdn.yandex.net/mystem/mystem-3.1-win-64bit.zip",
-      ("3.1", "linux64")  -> "http://download.cdn.yandex.net/mystem/mystem-3.1-linux-64bit.tar.gz",
-      ("3.1", "osx")      -> "http://download.cdn.yandex.net/mystem/mystem-3.1-macosx.tar.gz"
+      ("3.0", "osx") -> "http://download.cdn.yandex.net/mystem/mystem-3.0-macosx10.8.tar.gz",
+      ("3.1", "win64") -> "http://download.cdn.yandex.net/mystem/mystem-3.1-win-64bit.zip",
+      ("3.1", "linux64") -> "http://download.cdn.yandex.net/mystem/mystem-3.1-linux-64bit.tar.gz",
+      ("3.1", "osx") -> "http://download.cdn.yandex.net/mystem/mystem-3.1-macosx.tar.gz"
     )
     cases.foreach { case ((version, os), expected) =>
       val actual = Properties.getUrl(version, os)
@@ -92,7 +91,11 @@ class PropertiesTest extends AnyFunSuite {
     // rule. CI runs on Linux so we expect "mystem" most of the time, and
     // our Windows CI cell catches the .exe branch.
     val current = Properties.CurrentOs
-    val expected = if (current.startsWith("win")) "mystem.exe" else "mystem"
+    val expected =
+      if (current.startsWith("win"))
+        "mystem.exe"
+      else
+        "mystem"
     assert(
       Properties.BIN_FILE_NAME === expected,
       s"BIN_FILE_NAME=${Properties.BIN_FILE_NAME} doesn't match expected=$expected for OS=$current"

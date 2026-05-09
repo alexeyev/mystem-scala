@@ -7,18 +7,17 @@ import org.apache.commons.compress.archivers.zip.{ZipArchiveEntry, ZipArchiveOut
 import org.apache.commons.io.IOUtils
 import org.scalatest.funsuite.AnyFunSuite
 
-/**
- * Behavioral spec for [[Zip]].
- *
- * Pinned contract:
- *   - `unpack` extracts the first entry of a zip archive and writes it to
- *     `dst`, returning `dst`.
- *   - `traditionalExtension` is `"zip"`.
- *   - When the archive has multiple entries, only the first is extracted —
- *     this is intentional because mystem ships single-binary archives.
- *   - Missing source files surface a Java I/O exception, not a silent
- *     empty-output file.
- */
+/** Behavioral spec for [[Zip]].
+  *
+  * Pinned contract:
+  *   - `unpack` extracts the first entry of a zip archive and writes it to
+  *     `dst`, returning `dst`.
+  *   - `traditionalExtension` is `"zip"`.
+  *   - When the archive has multiple entries, only the first is extracted —
+  *     this is intentional because mystem ships single-binary archives.
+  *   - Missing source files surface a Java I/O exception, not a silent
+  *     empty-output file.
+  */
 class ZipTest extends AnyFunSuite {
 
   test("traditionalExtension is `zip`") {
@@ -45,9 +44,9 @@ class ZipTest extends AnyFunSuite {
     // mystem build that ships extras to silently corrupt the executable.
     // This regression test asserts the truncate-after-one-entry behavior.
     val multi = makeMultiEntryZip(
-      "first-entry"  -> "FIRST",
+      "first-entry" -> "FIRST",
       "second-entry" -> "SECOND",
-      "third-entry"  -> "THIRD"
+      "third-entry" -> "THIRD"
     )
     val out = File.createTempFile("mystem-scala-zip-multi-", ".out")
     out.deleteOnExit()
@@ -100,4 +99,5 @@ class ZipTest extends AnyFunSuite {
     }
     zip
   }
+
 }

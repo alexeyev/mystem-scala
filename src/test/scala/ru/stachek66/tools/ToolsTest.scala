@@ -6,29 +6,29 @@ import org.scalatest.funsuite.AnyFunSuite
 
 import scala.concurrent.duration._
 
-/**
- * Behavioral spec for `Tools.withAttempt`.
- *
- * The contract we are pinning down here is:
- *   1. Successful actions return immediately, exactly once, regardless of `n`.
- *   2. Exceptions from the action are retried up to `n - 1` times.
- *   3. After the final failure, the original cause is preserved.
- *   4. Errors (Throwable but not Exception) are NOT retried.
- *   5. The `timeout` is applied between retries only — never before the first
- *      attempt and never after the last (success or failure).
- *   6. The wrapped action's by-name parameter is re-evaluated on each attempt,
- *      so each retry runs the block fresh.
- */
+/** Behavioral spec for `Tools.withAttempt`.
+  *
+  * The contract we are pinning down here is:
+  *   1. Successful actions return immediately, exactly once, regardless of `n`.
+  *   2. Exceptions from the action are retried up to `n - 1` times.
+  *   3. After the final failure, the original cause is preserved.
+  *   4. Errors (Throwable but not Exception) are NOT retried.
+  *   5. The `timeout` is applied between retries only — never before the first
+  *      attempt and never after the last (success or failure).
+  *   6. The wrapped action's by-name parameter is re-evaluated on each attempt,
+  *      so each retry runs the block fresh.
+  */
 class ToolsTest extends AnyFunSuite {
 
   // -- Success paths -------------------------------------------------------
 
   test("a successful action runs exactly once and returns its value") {
     val calls = new AtomicInteger(0)
-    val result = Tools.withAttempt(3) {
-      calls.incrementAndGet()
-      "ok"
-    }
+    val result =
+      Tools.withAttempt(3) {
+        calls.incrementAndGet()
+        "ok"
+      }
     assert(result === "ok")
     assert(calls.get() === 1)
   }
@@ -47,10 +47,14 @@ class ToolsTest extends AnyFunSuite {
     // test's counter would stay at 1 and the third attempt would use a
     // stale snapshot.
     val calls = new AtomicInteger(0)
-    val result = Tools.withAttempt(5) {
-      val n = calls.incrementAndGet()
-      if (n < 3) throw new RuntimeException(s"transient $n") else s"got $n"
-    }
+    val result =
+      Tools.withAttempt(5) {
+        val n = calls.incrementAndGet()
+        if (n < 3)
+          throw new RuntimeException(s"transient $n")
+        else
+          s"got $n"
+      }
     assert(calls.get() === 3)
     assert(result === "got 3")
   }
@@ -98,7 +102,10 @@ class ToolsTest extends AnyFunSuite {
     val started = System.nanoTime()
     Tools.withAttempt(attempts, timeout) {
       val n = calls.incrementAndGet()
-      if (n < attempts) throw new RuntimeException("retry me") else "ok"
+      if (n < attempts)
+        throw new RuntimeException("retry me")
+      else
+        "ok"
     }
     val elapsedMs = (System.nanoTime() - started) / 1000000L
 
@@ -165,10 +172,14 @@ class ToolsTest extends AnyFunSuite {
     // actually matches RuntimeException subclasses (which are common in
     // mystem's I/O paths).
     val calls = new AtomicInteger(0)
-    val result = Tools.withAttempt(3) {
-      val n = calls.incrementAndGet()
-      if (n < 2) throw new IllegalStateException("hold on") else "fine"
-    }
+    val result =
+      Tools.withAttempt(3) {
+        val n = calls.incrementAndGet()
+        if (n < 2)
+          throw new IllegalStateException("hold on")
+        else
+          "fine"
+      }
     assert(calls.get() === 2)
     assert(result === "fine")
   }
