@@ -4,6 +4,7 @@ import java.io.File
 
 import org.scalatest.funsuite.AnyFunSuite
 
+import ru.stachek66.nlp.mystem.model.{AdjectiveForms, Number, POS}
 import ru.stachek66.nlp.mystem.parsing.GrammarInfoParsing
 
 /** End-to-end integration test that drives the actual `mystem` binary.
@@ -140,17 +141,44 @@ class MyStem3IntegrationTest extends AnyFunSuite {
     )
   }
 
-  // -- Reality check on the parens-ambiguity known limitation -------------
+  // -- Parens-pipe alternatives in real output ---------------------------
 
-  test("[integration] real mystem output exposes the parens-ambiguity gr format we don't parse") {
-    // Documentation-as-test. The user runs `mystem -igd --eng-gr --format
-    // json --weight` and the `gr` field commonly looks like
-    //   "A,plen=(acc,sg,m,anim|gen,sg,m|gen,sg,n)"
-    // GrammarInfoParsing.toGrammarInfo can't handle the parens; this test
-    // pins that the format actually does occur in real output AND that
-    // the parser deliberately throws on it. If mystem's output ever
-    // changes shape (or the parser learns to handle parens), this test
-    // forces an intentional update.
+  test("[integration] real verb output with `indic`/`praet` aliases parses every dimension") {
+    // Pre-fix, real verb output threw NoSuchElementException on `indic`
+    // (mystem's wire form for indicative mood; our enum had `ind`) and
+    // `praet` (past tense; our enum had `past`). We added alias
+    // canonicalisation so real output is parseable. End-to-end test.
+    assumeBinary()
+    withMystem { m =>
+      // Present-tense, 1st-person-singular indicative.
+      val present = m.analyze(Request("читаю")).info.toVector
+      val rawP = present.head.rawResponse
+      val grP = "\"gr\":\"([^\"]+)\"".r.findFirstMatchIn(rawP).map(_.group(1)).get
+      val giP = GrammarInfoParsing.toGrammarInfo(grP)
+      assert(giP.pos === Set(POS.V), s"gr=$grP")
+      assert(giP.verbFormInfo.contains(ru.stachek66.nlp.mystem.model.VerbForms.indicativeMood),
+        s"`indic` alias must map to indicativeMood, gr=$grP, parsed=$giP")
+      assert(giP.person.nonEmpty, s"verb in 1p form must have a person tag, gr=$grP")
+
+      // Past-tense form, exercises `praet` alias.
+      val past = m.analyze(Request("мыл")).info.toVector
+      val rawPast = past.find(_.lex.contains("мыть")).get.rawResponse
+      val grPast = "\"gr\":\"([^\"]+)\"".r.findFirstMatchIn(rawPast).map(_.group(1)).get
+      val giPast = GrammarInfoParsing.toGrammarInfo(grPast)
+      assert(giPast.tense === Set(ru.stachek66.nlp.mystem.model.Tense.past),
+        s"`praet` alias must map to Tense.past, gr=$grPast, parsed=$giPast")
+    }
+  }
+
+  test("[integration] real mystem parens-pipe gr fields parse into multiple GrammarInfos") {
+    // The lemma "тестового" has three mutually exclusive parses:
+    //   acc.sg.m.anim | gen.sg.m | gen.sg.n
+    // mystem emits this as a parens-pipe `gr` string, which used to throw
+    // NoSuchElementException because `(acc` was looked up as a tag. Now
+    // toGrammarInfos splits on `|` and returns one GrammarInfo per
+    // alternative. We don't depend on a fixed alternative count (mystem
+    // could conceivably tighten or expand the analysis in a future
+    // release); we DO depend on every alternative being well-formed.
     assumeBinary()
     withMystem { m =>
       val infos = m.analyze(Request("тестового")).info.toVector
@@ -159,9 +187,22 @@ class MyStem3IntegrationTest extends AnyFunSuite {
       val grRegex = "\"gr\":\"([^\"]+)\"".r
       val gr = grRegex.findFirstMatchIn(raw).map(_.group(1)).getOrElse(fail(s"no gr field in $raw"))
 
-      intercept[NoSuchElementException] {
-        GrammarInfoParsing.toGrammarInfo(gr)
+      val parsed = GrammarInfoParsing.toGrammarInfos(gr)
+      assert(parsed.size >= 2, s"expected ≥2 alternatives in real output `$gr`, got ${parsed.size}")
+
+      // Every alternative shares the prefix-derived dimensions: POS=A,
+      // adjFormInfo=plen. Verifying these holds across alternatives proves
+      // the prefix was applied to each.
+      parsed.foreach { gi =>
+        assert(gi.pos === Set(POS.A))
+        assert(gi.adjFormInfo === Set(AdjectiveForms.plen))
+        assert(gi.number === Set(Number.singular))
       }
+
+      // No alternative can have empty `case` — every parse must commit to
+      // one of acc/gen/etc. This catches a class of bug where the prefix
+      // is applied but the alternative-specific tags are dropped.
+      parsed.foreach(gi => assert(gi.`case`.nonEmpty, s"alternative with empty case: $gi"))
     }
   }
 }

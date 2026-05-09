@@ -5,13 +5,40 @@ package ru.stachek66.nlp.mystem.model
   */
 object GrammarMapBuilder {
 
-  // todo: make sure everything is covered
+  /** Aliases between the wire-format tag names mystem 3.x actually emits
+    * and the canonical names hard-coded into the [[Enumeration]] objects
+    * below. mystem's docs and its real output diverge — `mystem -igd`
+    * emits `indic` for indicative mood (we declared `ind`) and `praet`
+    * for past tense (we declared `past`). The pre-3.x naming was kept
+    * for backward compatibility of `Value.toString` output, but real
+    * output has to parse, so we map alias → canonical here.
+    *
+    * Public so callers who manually post-process tag strings can use the
+    * same canonicalisation rules as the parser.
+    */
+  val aliases: Map[String, String] = Map(
+    "indic" -> "ind",   // VerbForms.indicativeMood
+    "praet" -> "past"   // Tense.past
+  )
 
-  lazy val tagToEnumMap: Map[String, Enumeration] =
-    (tagToEnum(POS) ++ tagToEnum(Tense) ++ tagToEnum(Animacy) ++
-      tagToEnum(Aspect) ++ tagToEnum(VerbForms) ++ tagToEnum(Gender) ++
-      tagToEnum(Number) ++ tagToEnum(Voice) ++ tagToEnum(Other) ++
-      tagToEnum(AdjectiveForms) ++ tagToEnum(Person) ++ tagToEnum(Case)).toMap
+  /** The canonical (Enumeration-Value-side) form of a wire-format tag. */
+  def canonical(tag: String): String = aliases.getOrElse(tag, tag)
+
+  /** Tag-string → enclosing Enumeration. Includes both the canonical
+    * names (every Value emitted by every Enumeration below) AND every
+    * alias entry from [[aliases]] mapped to the canonical name's enum.
+    */
+  lazy val tagToEnumMap: Map[String, Enumeration] = {
+    val canonicalMap: Map[String, Enumeration] =
+      (tagToEnum(POS) ++ tagToEnum(Tense) ++ tagToEnum(Animacy) ++
+        tagToEnum(Aspect) ++ tagToEnum(VerbForms) ++ tagToEnum(Gender) ++
+        tagToEnum(Number) ++ tagToEnum(Voice) ++ tagToEnum(Other) ++
+        tagToEnum(AdjectiveForms) ++ tagToEnum(Person) ++ tagToEnum(Case)).toMap
+
+    canonicalMap ++ aliases.flatMap {
+      case (alias, canon) => canonicalMap.get(canon).map(alias -> _)
+    }
+  }
 
   private def tagToEnum(enum: Enumeration): Set[(String, Enumeration)] =
     // `values.iterator.toSet` is cross-version-safe; `values.unsorted` was

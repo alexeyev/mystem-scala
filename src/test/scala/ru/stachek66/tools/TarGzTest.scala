@@ -50,6 +50,53 @@ class TarGzTest extends AnyFunSuite {
     assert(msg.nonEmpty)
   }
 
+  test("unpacking an EMPTY tar.gz surfaces an `Archive is empty` IOException") {
+    val tgz = File.createTempFile("mystem-scala-tgz-empty-", ".tar.gz")
+    tgz.deleteOnExit()
+    val gzip = new GZIPOutputStream(new FileOutputStream(tgz))
+    val tar = new TarArchiveOutputStream(gzip)
+    try {
+      tar.finish()
+    } finally {
+      tar.close()
+      gzip.close()
+    }
+
+    val dst = File.createTempFile("mystem-scala-tgz-empty-out-", ".out")
+    dst.deleteOnExit()
+
+    val ex = intercept[IOException](TarGz.unpack(tgz, dst))
+    assert(
+      ex.getMessage.toLowerCase.contains("empty"),
+      s"expected `empty`-flavoured message, got: ${ex.getMessage}"
+    )
+  }
+
+  test("unpacking a tar.gz whose first entry is a DIRECTORY raises an IOException") {
+    val tgz = File.createTempFile("mystem-scala-tgz-dir-first-", ".tar.gz")
+    tgz.deleteOnExit()
+    val gzip = new GZIPOutputStream(new FileOutputStream(tgz))
+    val tar = new TarArchiveOutputStream(gzip)
+    try {
+      val dir = new TarArchiveEntry("subdir/", true)
+      tar.putArchiveEntry(dir)
+      tar.closeArchiveEntry()
+    } finally {
+      tar.finish()
+      tar.close()
+      gzip.close()
+    }
+
+    val dst = File.createTempFile("mystem-scala-tgz-dir-first-out-", ".out")
+    dst.deleteOnExit()
+
+    val ex = intercept[IOException](TarGz.unpack(tgz, dst))
+    assert(
+      ex.getMessage.toLowerCase.contains("directory"),
+      s"expected `directory`-flavoured message, got: ${ex.getMessage}"
+    )
+  }
+
   // -- Helpers ------------------------------------------------------------
 
   private def readAllText(f: File): String = {

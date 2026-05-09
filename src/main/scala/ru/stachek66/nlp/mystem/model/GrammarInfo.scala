@@ -8,6 +8,7 @@ case class GrammarInfo(
   tense: Set[Tense.Value] = Set.empty,
   `case`: Set[Case.Value] = Set.empty,
   number: Set[Number.Value] = Set.empty,
+  person: Set[Person.Value] = Set.empty[Person.Value],
   verbFormInfo: Set[VerbForms.Value] = Set.empty[VerbForms.Value],
   adjFormInfo: Set[AdjectiveForms.Value] = Set.empty[AdjectiveForms.Value],
   gender: Set[Gender.Value] = Set.empty,

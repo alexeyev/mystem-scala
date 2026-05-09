@@ -41,14 +41,13 @@ class GrammarInfoParsingTest extends AnyFunSuite {
     assert(gi.other.isEmpty)
   }
 
-  test("verb: V,ipf,intr=praes,sg,ind routes correctly") {
-    // The `1p` tag (Person.p1) is documented separately below; we omit it
-    // here because GrammarInfo does not surface a `person` field.
-    val gi = toGrammarInfo("V,ipf,intr=praes,sg,ind")
+  test("verb: V,ipf,intr=praes,sg,1p,ind routes correctly to every dimension including person") {
+    val gi = toGrammarInfo("V,ipf,intr=praes,sg,1p,ind")
     assert(gi.pos === Set(POS.V))
     assert(gi.aspect === Set(Aspect.imperfective))
     assert(gi.tense === Set(Tense.present))
     assert(gi.number === Set(Number.singular))
+    assert(gi.person === Set(Person.p1))
     assert(gi.verbFormInfo === Set(VerbForms.intransitive, VerbForms.indicativeMood))
   }
 
@@ -178,8 +177,65 @@ class GrammarInfoParsingTest extends AnyFunSuite {
     assert(missing.isEmpty, s"GrammarMapBuilder is missing: ${missing.mkString(", ")}")
   }
 
-  test("each documented tag in tagToEnumMap maps to the enum it belongs to") {
-    // Catches a class of mistake: a tag accidentally registered under the
+  // -- Wire-format aliases (mystem-3.x ↔ Enumeration name divergence) ---
+
+  test("`indic` (mystem's wire form) parses as VerbForms.indicativeMood") {
+    // mystem 3.x emits `indic` for indicative mood, but our enum was
+    // declared with `Value(\"ind\")` historically. Both must parse.
+    // Without alias support, real verb output throws NoSuchElementException.
+    val gi = toGrammarInfo("V,ipf,intr=inpraes,sg,indic,1p")
+    assert(gi.verbFormInfo.contains(VerbForms.indicativeMood))
+    assert(gi.tense === Set(Tense.inpraes))
+    assert(gi.person === Set(Person.p1))
+  }
+
+  test("`ind` (the canonical Value name) still parses, for backward compat") {
+    val gi = toGrammarInfo("V,ipf,intr=praes,sg,1p,ind")
+    assert(gi.verbFormInfo.contains(VerbForms.indicativeMood))
+  }
+
+  test("`praet` (mystem wire form for past tense) parses as Tense.past") {
+    // Same shape as the indic alias: `Value(\"past\")` historically,
+    // mystem emits `praet` (Latin praeteritum). Real past-tense output
+    // would otherwise throw.
+    val gi = toGrammarInfo("V,ipf,intr=praet,sg,indic,m")
+    assert(gi.tense === Set(Tense.past))
+    assert(gi.gender === Set(Gender.masculine))
+  }
+
+  test("`past` (canonical name) still parses, for backward compat") {
+    val gi = toGrammarInfo("V=past")
+    assert(gi.tense === Set(Tense.past))
+  }
+
+  test("real-world `inpraes,sg,indic,1p` parses every dimension correctly") {
+    // The actual `gr` shape mystem emits for present-tense indicative
+    // verbs like \"иду\" / \"читаю\" / \"играю\". Pinned end-to-end:
+    // tense, number, mood, person all populated correctly with alias
+    // mapping in place.
+    val gi = toGrammarInfo("V,ipf,tran=inpraes,sg,indic,1p")
+    assert(gi.pos === Set(POS.V))
+    assert(gi.aspect === Set(Aspect.imperfective))
+    assert(gi.verbFormInfo === Set(VerbForms.transitive, VerbForms.indicativeMood))
+    assert(gi.tense === Set(Tense.inpraes))
+    assert(gi.number === Set(Number.singular))
+    assert(gi.person === Set(Person.p1))
+  }
+
+  test("alias canonicalisation only rewrites known aliases, not arbitrary tags") {
+    // Pin: canonical(x) is the identity for tags not in the alias map.
+    // Otherwise a future addition to aliases could silently rename
+    // unrelated tags.
+    assert(GrammarMapBuilder.canonical("nom") === "nom")
+    assert(GrammarMapBuilder.canonical("S") === "S")
+    assert(GrammarMapBuilder.canonical("indic") === "ind") // alias
+    assert(GrammarMapBuilder.canonical("praet") === "past") // alias
+    // Unknown tags: canonical() returns them unchanged. The throw on
+    // lookup is the parser's responsibility, not canonical's.
+    assert(GrammarMapBuilder.canonical("nonsense") === "nonsense")
+  }
+
+  test("each documented tag in tagToEnumMap maps to the enum it belongs to") {    // Catches a class of mistake: a tag accidentally registered under the
     // wrong enum (e.g., "nom" landing in Gender instead of Case).
     val expectations = Map(
       "S" -> POS,
@@ -232,31 +288,138 @@ class GrammarInfoParsingTest extends AnyFunSuite {
     }
   }
 
-  // -- Pinned known limitations -------------------------------------------
+  // -- Person field -------------------------------------------------------
 
-  test("known limitation: the `1p`/`2p`/`3p` person tag is recognized but lost") {
-    // Person values exist in tagToEnumMap (verified above) but `GrammarInfo`
-    // has no `person: Set[Person.Value]` field, so the parser drops them
-    // on the floor. This test pins that behavior so any future change that
-    // adds a `person` field is forced to update both production and tests
-    // intentionally.
-    val gi = toGrammarInfo("V,ipf,intr=praes,sg,1p,ind")
-    // No assertion *about* person — there's no field to assert on. The
-    // important assertion is that PARSING didn't throw, since that's
-    // observable from outside.
-    assert(gi.pos === Set(POS.V))
+  test("person tag (`1p`/`2p`/`3p`) populates GrammarInfo.person") {
+    // Used to be a silent-drop bug: tagToEnumMap routed `1p` through Person,
+    // but GrammarInfo had no `person` field for it to land in. Fixed by
+    // adding `person: Set[Person.Value]` and populating it from the same
+    // findByEnum machinery as every other dimension.
+    assert(toGrammarInfo("V,ipf,intr=praes,sg,1p,ind").person === Set(Person.p1))
+    assert(toGrammarInfo("V,ipf,intr=praes,pl,2p,ind").person === Set(Person.p2))
+    assert(toGrammarInfo("V,ipf,intr=praes,sg,3p,ind").person === Set(Person.p3))
   }
 
-  test("known limitation: ambiguity-paren syntax `(a,b|c,d)` is NOT supported") {
-    // Real mystem output with `--weight` looks like
-    //   "S,f,inan=(gen,sg|nom,pl)"
-    // The current parser splits on `[,=]` only, so the parens become
-    // part of the would-be tag (e.g., "(gen") and lookup in
-    // tagToEnumMap throws NoSuchElementException. This is documented
-    // here so a future supporter knows it's a known issue, not an
-    // accidental regression.
+  test("an analysis without a person tag has an empty person set (not null)") {
+    // Negative: the field is `Set` so it had better default to `Set.empty`,
+    // not crash. This pins the case-class default.
+    val noun = toGrammarInfo("S,f,inan=nom,sg")
+    assert(noun.person !== null)
+    assert(noun.person.isEmpty)
+  }
+
+  test("round-trip preserves person across toStringRepresentation → toGrammarInfo") {
+    val original = toGrammarInfo("V,ipf,intr=praes,sg,2p,ind")
+    val round = toGrammarInfo(toStringRepresentation(original))
+    assert(round === original, "structural equality must include the person field")
+    assert(round.person === Set(Person.p2))
+  }
+
+  test("toStringRepresentation includes person tags in its output") {
+    // Sanity check on the serializer: if we forgot to add gi.person to the
+    // concatenation, the round-trip above would still pass for any
+    // GrammarInfo whose person field was empty, but would fail for ones
+    // where it isn't. This test pins the serializer directly.
+    val gi = toGrammarInfo("V,ipf,intr=praes,sg,3p,ind")
+    val emitted = toStringRepresentation(gi)
+    assert(emitted.split(',').contains("3p"), s"toStringRepresentation should emit `3p`, got: $emitted")
+  }
+
+  // -- Parens-pipe alternative-analysis form ------------------------------
+
+  test("toGrammarInfos returns one GrammarInfo per parens-alternative") {
+    // Real mystem output for the lemma "тестового" — three mutually
+    // exclusive parses sharing a common `A,plen=` prefix. Each alternative
+    // gets its own GrammarInfo with the right combination of dimensions;
+    // we verify that the alternatives DON'T cross-contaminate (e.g., the
+    // animacy tag from alt 1 must not leak into alt 2 or alt 3).
+    val infos = toGrammarInfos("A,plen=(acc,sg,m,anim|gen,sg,m|gen,sg,n)")
+    assert(infos.size === 3)
+
+    // Alt 0: accusative, singular, masculine, animate.
+    assert(infos(0).pos === Set(POS.A))
+    assert(infos(0).adjFormInfo === Set(AdjectiveForms.plen))
+    assert(infos(0).`case` === Set(Case.accusative))
+    assert(infos(0).number === Set(Number.singular))
+    assert(infos(0).gender === Set(Gender.masculine))
+    assert(infos(0).animacy === Set(Animacy.animate))
+
+    // Alt 1: genitive, singular, masculine, NO animacy tag.
+    assert(infos(1).`case` === Set(Case.genitive))
+    assert(infos(1).gender === Set(Gender.masculine))
+    assert(infos(1).animacy.isEmpty, "anim must NOT bleed across alternatives")
+
+    // Alt 2: genitive, singular, neuter, NO animacy.
+    assert(infos(2).`case` === Set(Case.genitive))
+    assert(infos(2).gender === Set(Gender.neuter))
+    assert(infos(2).animacy.isEmpty)
+  }
+
+  test("toGrammarInfos with a 2-alternative input") {
+    // Smaller realistic case to verify the parser doesn't only handle
+    // exactly-3 alternatives.
+    val infos = toGrammarInfos("S,f,inan=(gen,sg|nom,pl)")
+    assert(infos.size === 2)
+    assert(infos(0).`case` === Set(Case.genitive) && infos(0).number === Set(Number.singular))
+    assert(infos(1).`case` === Set(Case.nominative) && infos(1).number === Set(Number.plural))
+  }
+
+  test("toGrammarInfos returns a single-element list for non-parens input") {
+    // The shape with no parens in `gr` (mystem omits parens when there's
+    // only one analysis) should still work — we shouldn't make every
+    // caller special-case "is there a paren or not?".
+    val infos = toGrammarInfos("S,f,inan=nom,sg")
+    assert(infos.size === 1)
+    assert(infos.head.pos === Set(POS.S))
+    assert(infos.head.`case` === Set(Case.nominative))
+  }
+
+  test("toGrammarInfos for a bare POS (no `=`) works") {
+    val infos = toGrammarInfos("ADV")
+    assert(infos.size === 1)
+    assert(infos.head.pos === Set(POS.ADV))
+  }
+
+  test("toGrammarInfo (singular) returns the FIRST alternative when input has parens") {
+    // mystem orders alternatives by descending probability, so `.head` is
+    // the most-likely interpretation. Pinning this so a future "return
+    // average" or "return union" change has to be intentional.
+    val gi = toGrammarInfo("A,plen=(acc,sg,m,anim|gen,sg,m|gen,sg,n)")
+    val infos = toGrammarInfos("A,plen=(acc,sg,m,anim|gen,sg,m|gen,sg,n)")
+    assert(gi === infos.head)
+    assert(gi.`case` === Set(Case.accusative))
+    assert(gi.animacy === Set(Animacy.animate))
+  }
+
+  test("the fixed prefix is correctly applied to every alternative") {
+    // Regression for an off-by-one in prefix construction that would have
+    // produced a malformed combined string for alt 2 onwards. Every
+    // alternative should preserve the `A` POS and the `plen` adjective
+    // form (which both come from the prefix).
+    val infos = toGrammarInfos("A,plen=(acc,sg,m,anim|gen,sg,m|gen,sg,n)")
+    infos.foreach { gi =>
+      assert(gi.pos === Set(POS.A), "POS lost on later alternative")
+      assert(gi.adjFormInfo === Set(AdjectiveForms.plen), "adjFormInfo lost on later alternative")
+      assert(gi.number === Set(Number.singular), "number tag from variable part lost")
+    }
+  }
+
+  test("empty parens `S=()` yields a single GrammarInfo with just the prefix tags") {
+    // Defensible: the prefix has its own meaning, the parens are the
+    // alternative slot. Empty alternatives → one trivial alternative.
+    val infos = toGrammarInfos("A,plen=()")
+    assert(infos.size === 1)
+    assert(infos.head.pos === Set(POS.A))
+    assert(infos.head.adjFormInfo === Set(AdjectiveForms.plen))
+    assert(infos.head.`case`.isEmpty, "no case tag in input → empty case set")
+  }
+
+  test("a stray unknown tag inside parens fails the whole parse, not silently") {
+    // Same fail-loud contract as the non-parens path: an unrecognized tag
+    // means we're looking at output we don't understand, which is a build-
+    // time signal, not something to swallow at runtime.
     intercept[NoSuchElementException] {
-      toGrammarInfo("S,f,inan=(gen,sg|nom,pl)")
+      toGrammarInfos("A,plen=(acc,sg|UNKNOWN_TAG,sg)")
     }
   }
 }
