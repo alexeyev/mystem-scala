@@ -5,9 +5,8 @@ import java.net.{URI, URL}
 import com.typesafe.config.ConfigFactory
 import org.slf4j.LoggerFactory
 
-/**
- * Various configs for interaction with the outer world.
- */
+/** Various configs for interaction with the outer world.
+  */
 object Properties {
 
   private val log = LoggerFactory.getLogger(getClass)
@@ -20,10 +19,11 @@ object Properties {
 
   log.debug(s"OS detected: $CurrentOs, system properties: $systemOsName | $systemOsArchitecture ")
 
-  val BIN_FILE_NAME: String = CurrentOs match {
-    case name if name.startsWith("win") => "mystem.exe"
-    case _                              => "mystem"
-  }
+  val BIN_FILE_NAME: String =
+    CurrentOs match {
+      case name if name.startsWith("win") => "mystem.exe"
+      case _ => "mystem"
+    }
 
   private lazy val rootProp = ConfigFactory.load("mystem-sources.conf")
   private lazy val version = rootProp.getConfig("version")
@@ -45,11 +45,9 @@ object Properties {
       "Troubles with version name, should match pattern <number>.<number>"
     )
 
-    val versionProps =
-      doOrDie(version.getConfig(versionRaw), s"No binaries sources for version [$versionRaw] found")
+    val versionProps = doOrDie(version.getConfig(versionRaw), s"No binaries sources for version [$versionRaw] found")
 
-    val url =
-      doOrDie(versionProps.getString(os), s"Version number is correct, no binaries sources for OS [$os] found")
+    val url = doOrDie(versionProps.getString(os), s"Version number is correct, no binaries sources for OS [$os] found")
 
     doOrDie(
       // `new URL(String)` was deprecated in Java 20+. URI.toURL has been
@@ -58,4 +56,5 @@ object Properties {
       s"URL configs troubles. If you see this message, please email anton.m.alexeyev@gmail.com"
     )
   }
+
 }

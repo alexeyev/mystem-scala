@@ -10,21 +10,25 @@ class ToolsTest extends AnyFunSuite {
 
   test("withAttempt returns immediately on a successful action") {
     val calls = new AtomicInteger(0)
-    val result = Tools.withAttempt(3) {
-      calls.incrementAndGet()
-      "ok"
-    }
+    val result =
+      Tools.withAttempt(3) {
+        calls.incrementAndGet()
+        "ok"
+      }
     assert(result === "ok")
     assert(calls.get() === 1)
   }
 
   test("withAttempt retries up to n-1 more times on Exception") {
     val calls = new AtomicInteger(0)
-    val result = Tools.withAttempt(4) {
-      val attempt = calls.incrementAndGet()
-      if (attempt < 3) throw new RuntimeException(s"transient $attempt")
-      else "ok"
-    }
+    val result =
+      Tools.withAttempt(4) {
+        val attempt = calls.incrementAndGet()
+        if (attempt < 3)
+          throw new RuntimeException(s"transient $attempt")
+        else
+          "ok"
+      }
     assert(result === "ok")
     assert(calls.get() === 3)
   }
@@ -48,8 +52,10 @@ class ToolsTest extends AnyFunSuite {
     val start = System.currentTimeMillis()
     Tools.withAttempt(3, 100.millis) {
       val n = calls.incrementAndGet()
-      if (n < 3) throw new RuntimeException("transient")
-      else "ok"
+      if (n < 3)
+        throw new RuntimeException("transient")
+      else
+        "ok"
     }
     val elapsed = System.currentTimeMillis() - start
     // 2 retries × 100ms minimum. Allow generous slack for slow CI.

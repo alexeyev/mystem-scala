@@ -5,8 +5,7 @@ import org.scalatest.funsuite.AnyFunSuite
 class JsonRepresentationParserTest extends AnyFunSuite {
 
   test("a token with one analysis entry yields the lex of that entry") {
-    val json =
-      """[{"analysis":[{"lex":"мама","wt":1,"gr":"S,f,inan=nom,sg"}],"text":"мама"}]"""
+    val json = """[{"analysis":[{"lex":"мама","wt":1,"gr":"S,f,inan=nom,sg"}],"text":"мама"}]"""
     val out = JsonRepresentationParser.toInfo(json).toVector
     assert(out.size === 1)
     assert(out.head.initial === "мама")

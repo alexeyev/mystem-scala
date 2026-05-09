@@ -7,20 +7,19 @@ import org.slf4j.LoggerFactory
 
 import scala.util.Try
 
-/**
- * Thin synchronous wrapper around an external CLI process that speaks
- * one-line-request / one-line-response over stdin/stdout.
- *
- * Lifecycle notes:
- *  - The process is started lazily-ish (in the constructor); use [[isAlive]]
- *    to check status.
- *  - [[close]] destroys the process. It is safe to call multiple times and
- *    is what the JVM shutdown hook in [[FailSafeExternalProcessServer]]
- *    invokes to fix the long-standing "mystem doesn't terminate after main
- *    thread quits" issue.
- *  - Reader/writer wrap the streams in UTF-8; this is the encoding mystem
- *    uses for its JSON output.
- */
+/** Thin synchronous wrapper around an external CLI process that speaks
+  * one-line-request / one-line-response over stdin/stdout.
+  *
+  * Lifecycle notes:
+  *  - The process is started lazily-ish (in the constructor); use [[isAlive]]
+  *    to check status.
+  *  - [[close]] destroys the process. It is safe to call multiple times and
+  *    is what the JVM shutdown hook in [[FailSafeExternalProcessServer]]
+  *    invokes to fix the long-standing "mystem doesn't terminate after main
+  *    thread quits" issue.
+  *  - Reader/writer wrap the streams in UTF-8; this is the encoding mystem
+  *    uses for its JSON output.
+  */
 private[external] class ExternalProcessServer(starterCommand: String) extends SyncServer {
 
   private val log = LoggerFactory.getLogger(getClass)
@@ -54,7 +53,8 @@ private[external] class ExternalProcessServer(starterCommand: String) extends Sy
 
     // ...then drain whatever the process emits in this round.
     val builder = new StringBuilder()
-    while (reader.ready()) builder.append(reader.readLine())
+    while (reader.ready())
+      builder.append(reader.readLine())
     builder.toString()
   }
 
@@ -79,4 +79,5 @@ private[external] class ExternalProcessServer(starterCommand: String) extends Sy
       }
     }
   }
+
 }

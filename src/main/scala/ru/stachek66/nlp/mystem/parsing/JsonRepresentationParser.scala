@@ -3,13 +3,12 @@ package ru.stachek66.nlp.mystem.parsing
 import org.json.JSONArray
 import ru.stachek66.nlp.mystem.model.Info
 
-/**
- * Parses mystem's `--format json` output into [[Info]] objects.
- *
- * The signature switched from the deprecated `Traversable` to `Iterable` to
- * make the wrapper compile cleanly under Scala 2.13's strict deprecation
- * settings and stay source-compatible with Scala 3.
- */
+/** Parses mystem's `--format json` output into [[Info]] objects.
+  *
+  * The signature switched from the deprecated `Traversable` to `Iterable` to
+  * make the wrapper compile cleanly under Scala 2.13's strict deprecation
+  * settings and stay source-compatible with Scala 3.
+  */
 object JsonRepresentationParser {
 
   def toInfo(json: String): Iterable[Info] = toInfo(new JSONArray(json))
@@ -42,4 +41,5 @@ object JsonRepresentationParser {
 
     out.result()
   }
+
 }

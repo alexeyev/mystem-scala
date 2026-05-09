@@ -2,10 +2,9 @@ package ru.stachek66.nlp.mystem
 
 import org.slf4j._
 
-/**
- * alexeyev 
- * 31.08.14.
- */
+/** alexeyev
+  * 31.08.14.
+  */
 object CLIRunner extends App {
 
   val log: Logger = LoggerFactory.getLogger(getClass)

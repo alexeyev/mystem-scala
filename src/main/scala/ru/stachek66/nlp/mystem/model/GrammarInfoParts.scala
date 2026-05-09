@@ -1,24 +1,23 @@
 package ru.stachek66.nlp.mystem.model
 
-/**
- * alexeyev
- * 31.08.14.
- */
+/** alexeyev
+  * 31.08.14.
+  */
 object GrammarMapBuilder {
 
-  //todo: make sure everything is covered
+  // todo: make sure everything is covered
 
   lazy val tagToEnumMap: Map[String, Enumeration] =
     (tagToEnum(POS) ++ tagToEnum(Tense) ++ tagToEnum(Animacy) ++
       tagToEnum(Aspect) ++ tagToEnum(VerbForms) ++ tagToEnum(Gender) ++
       tagToEnum(Number) ++ tagToEnum(Voice) ++ tagToEnum(Other) ++
-      tagToEnum(AdjectiveForms) ++ tagToEnum(Person) ++ tagToEnum(Case)
-      ).toMap
+      tagToEnum(AdjectiveForms) ++ tagToEnum(Person) ++ tagToEnum(Case)).toMap
 
   private def tagToEnum(enum: Enumeration): Set[(String, Enumeration)] =
     // `values.iterator.toSet` is cross-version-safe; `values.unsorted` was
     // a 2.13-only addition that breaks the Scala 2.12 build.
     enum.values.iterator.map(value => value.toString -> enum).toSet
+
 }
 
 object POS extends Enumeration {

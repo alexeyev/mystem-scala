@@ -22,4 +22,5 @@ object Downloader {
     log.debug("Downloading binaries done.")
     destination
   }
+
 }
