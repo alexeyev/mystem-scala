@@ -217,8 +217,31 @@
                     <version>${scoverage.plugin.version}</version>
                     <configuration>
                         <scalaVersion>${scala.version}</scalaVersion>
-                        <minimumCoverage>30</minimumCoverage>
-                        <failOnMinimumCoverage>false</failOnMinimumCoverage>
+                        <!--
+                            Coverage threshold is intentionally modest. The
+                            wrapper has a few code paths (binary download +
+                            unpack + native-process spawn) that can't be
+                            unit-tested without network or a Russian-language
+                            CLI on the box, so 100% is unreasonable. 50%
+                            line / 40% branch with failOnMinimumCoverage=true
+                            keeps the gate meaningful without becoming a
+                            flake source.
+                        -->
+                        <minimumCoverage>50</minimumCoverage>
+                        <minimumCoverageBranchTotal>40</minimumCoverageBranchTotal>
+                        <failOnMinimumCoverage>true</failOnMinimumCoverage>
+                        <highlighting>true</highlighting>
+                        <aggregate>true</aggregate>
+                        <!--
+                            Don't instrument the model package. These types
+                            are case-class apply/copy machinery and Scala
+                            Enumeration boilerplate; scoverage would
+                            otherwise count their synthetic methods against
+                            the threshold for no real coverage signal.
+                        -->
+                        <excludedPackages>
+                            ru.stachek66.nlp.mystem.model
+                        </excludedPackages>
                     </configuration>
                 </plugin>
             </plugins>
@@ -415,6 +438,38 @@
                 <scala.compat.version>2.12</scala.compat.version>
                 <scala.version>2.12.21</scala.version>
             </properties>
+        </profile>
+
+        <!--
+            Coverage profile. Run `mvn -Pcoverage verify` to instrument the
+            Scala compile, run tests against the instrumented classes, and
+            generate an HTML+XML report under target/scoverage. The build
+            fails if line coverage drops below the threshold configured in
+            <pluginManagement> above (currently 50% line / 40% branch).
+            We don't activate this in the default profile because scoverage
+            roughly doubles test-run time, which is fine for CI but painful
+            for inner-loop dev. The CI workflow opts in explicitly.
+        -->
+        <profile>
+            <id>coverage</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.scoverage</groupId>
+                        <artifactId>scoverage-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>scoverage-report</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>report</goal>
+                                    <goal>check</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
 
         <!--

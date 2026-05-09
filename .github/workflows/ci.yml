@@ -59,14 +59,19 @@ jobs:
         run: mvn --batch-mode -P scala-${{ matrix.scala }} test
 
       - name: Coverage report (scoverage)
+        # Runs on the JDK 17 / Scala 2.13 cell only — duplicating across
+        # the matrix would just produce identical reports. The `coverage`
+        # profile binds scoverage:report+check to the verify phase and
+        # fails the build below the threshold configured in pom.xml.
         if: matrix.java == '17' && matrix.scala == '2.13'
-        run: mvn --batch-mode -P scala-${{ matrix.scala }} scoverage:report
-        continue-on-error: true
+        run: mvn --batch-mode -P scala-${{ matrix.scala }},coverage verify
 
       - name: Upload coverage report
         if: matrix.java == '17' && matrix.scala == '2.13'
         uses: actions/upload-artifact@v4
         with:
           name: scoverage-report
-          path: target/site/scoverage/
+          path: |
+            target/scoverage/
+            target/site/scoverage/
           if-no-files-found: ignore
