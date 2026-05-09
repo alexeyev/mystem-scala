@@ -58,9 +58,18 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
 
-        <!-- Defaults; overridden by the scala-2.12 / scala-2.13 profiles. -->
+        <!--
+            Defaults; overridden by the scala-2.12 / scala-2.13 profiles.
+            We pin to 2.13.16 (not the very latest 2.13.x) because scoverage
+            only publishes its compiler-instrumentation jar
+            (scalac-scoverage-plugin_2.13.<patch>) for specific Scala patch
+            versions, and 2.13.16 is the latest one with that jar published.
+            Bumping past it makes `mvn -P coverage verify` fail to resolve
+            scalac-scoverage-plugin. See
+            https://github.com/scoverage/scalac-scoverage-plugin .
+        -->
         <scala.compat.version>2.13</scala.compat.version>
-        <scala.version>2.13.18</scala.version>
+        <scala.version>2.13.16</scala.version>
 
         <!-- Library / tool versions. -->
         <slf4j.version>2.0.16</slf4j.version>
@@ -86,6 +95,12 @@
         <maven.release.plugin.version>3.1.1</maven.release.plugin.version>
         <central.publishing.plugin.version>0.10.0</central.publishing.plugin.version>
         <scoverage.plugin.version>2.0.4</scoverage.plugin.version>
+        <!--
+            scalac-scoverage-plugin (the compiler-instrumentation jar) version.
+            Has to exist as scalac-scoverage-plugin_<scala.version>:<this>.
+            2.3.0 is published for both 2.13.16 and 2.12.20.
+        -->
+        <scoverage.scalacPluginVersion>2.3.0</scoverage.scalacPluginVersion>
         <!--
             mvn-scalafmt is a build-time plugin; its Scala suffix is independent
             of the project's `scala.compat.version`. Pin to 2.13.
@@ -217,6 +232,16 @@
                     <version>${scoverage.plugin.version}</version>
                     <configuration>
                         <scalaVersion>${scala.version}</scalaVersion>
+                        <!--
+                            Pin the runtime instrumentation jar (scalac-
+                            scoverage-plugin_<scala>) to a version that's
+                            actually published for our Scala patch versions.
+                            The scoverage-maven-plugin 2.0.4 default of 2.1.1
+                            is from 2023 and predates Scala 2.13.16 / 2.12.20,
+                            so the build defaults to a non-existent artifact.
+                            2.3.0 is published for both 2.13.16 and 2.12.20.
+                        -->
+                        <scalacPluginVersion>${scoverage.scalacPluginVersion}</scalacPluginVersion>
                         <!--
                             Coverage threshold is intentionally modest. The
                             wrapper has a few code paths (binary download +
@@ -428,7 +453,8 @@
             </activation>
             <properties>
                 <scala.compat.version>2.13</scala.compat.version>
-                <scala.version>2.13.18</scala.version>
+                <!-- Pinned to 2.13.16 — see comment on scala.version above. -->
+                <scala.version>2.13.16</scala.version>
             </properties>
         </profile>
 
@@ -436,7 +462,9 @@
             <id>scala-2.12</id>
             <properties>
                 <scala.compat.version>2.12</scala.compat.version>
-                <scala.version>2.12.21</scala.version>
+                <!-- 2.12.20 is the latest 2.12.x with a published
+                     scalac-scoverage-plugin jar; same constraint as 2.13. -->
+                <scala.version>2.12.20</scala.version>
             </properties>
         </profile>
 
