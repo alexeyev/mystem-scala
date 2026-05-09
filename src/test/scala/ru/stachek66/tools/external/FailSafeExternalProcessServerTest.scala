@@ -6,20 +6,19 @@ import java.nio.file.Files
 
 import org.scalatest.funsuite.AnyFunSuite
 
-/**
- * Behavioral spec for [[FailSafeExternalProcessServer]].
- *
- * The wrapper is responsible for three things on top of a plain
- * [[ExternalProcessServer]]:
- *   - retry-on-failure (covered by [[ru.stachek66.tools.ToolsTest]]);
- *   - JVM-shutdown-hook-driven cleanup of the spawned OS process —
- *     this is the fix for issue #3, exercised end-to-end below by forking
- *     a child JVM and observing that the spawned `sleep` process really is
- *     killed when the child exits without calling `close()`;
- *   - a state machine that refuses further `syncRequest` calls after
- *     `close()` (preventing a hookless replacement from being silently
- *     spawned, which would re-introduce the original leak).
- */
+/** Behavioral spec for [[FailSafeExternalProcessServer]].
+  *
+  * The wrapper is responsible for three things on top of a plain
+  * [[ExternalProcessServer]]:
+  *   - retry-on-failure (covered by [[ru.stachek66.tools.ToolsTest]]);
+  *   - JVM-shutdown-hook-driven cleanup of the spawned OS process —
+  *     this is the fix for issue #3, exercised end-to-end below by forking
+  *     a child JVM and observing that the spawned `sleep` process really is
+  *     killed when the child exits without calling `close()`;
+  *   - a state machine that refuses further `syncRequest` calls after
+  *     `close()` (preventing a hookless replacement from being silently
+  *     spawned, which would re-introduce the original leak).
+  */
 class FailSafeExternalProcessServerTest extends AnyFunSuite {
 
   private val isUnixLike: Boolean = !sys.props("os.name").toLowerCase.startsWith("windows")
@@ -102,13 +101,15 @@ class FailSafeExternalProcessServerTest extends AnyFunSuite {
     val javaBin = System.getProperty("java.home") + "/bin/java"
     val classpath = System.getProperty("java.class.path")
 
-    val pb = new ProcessBuilder(
-      javaBin,
-      "-cp", classpath,
-      "ru.stachek66.tools.external.ShutdownHookFiringChild",
-      script.getAbsolutePath,
-      pidFile.getAbsolutePath
-    )
+    val pb =
+      new ProcessBuilder(
+        javaBin,
+        "-cp",
+        classpath,
+        "ru.stachek66.tools.external.ShutdownHookFiringChild",
+        script.getAbsolutePath,
+        pidFile.getAbsolutePath
+      )
     pb.redirectErrorStream(true)
     val child = pb.start()
 
@@ -121,27 +122,28 @@ class FailSafeExternalProcessServerTest extends AnyFunSuite {
       line = reader.readLine()
     }
     val exit = child.waitFor()
-    assert(exit === 0, s"child JVM exited with $exit; stdout was:\n${output}")
+    assert(exit === 0, s"child JVM exited with $exit; stdout was:\n$output")
 
     val pid = output
       .toString()
       .split('\n')
       .find(_.startsWith("PID="))
       .map(_.stripPrefix("PID=").trim)
-      .getOrElse(fail(s"child JVM did not print a PID line. stdout was:\n${output}"))
+      .getOrElse(fail(s"child JVM did not print a PID line. stdout was:\n$output"))
 
     // 4. Poll /proc/<pid> for up to 5s. If the shutdown hook did its job,
     //    the entry should disappear shortly after the child JVM exited.
     val procEntry = new File(s"/proc/$pid")
     val deadline = System.currentTimeMillis() + 5000
-    while (procEntry.exists() && System.currentTimeMillis() < deadline) {
+    while (procEntry.exists() && System.currentTimeMillis() < deadline)
       Thread.sleep(25L)
-    }
     if (procEntry.exists()) {
       // Best-effort cleanup so a buggy build doesn't leave 60s sleep zombies
       // around indefinitely. Any failure here is informational.
       val _ = Runtime.getRuntime.exec(Array("kill", "-9", pid)).waitFor()
-      fail(s"PID $pid was still alive 5s after the child JVM exited; the shutdown hook did NOT fire (or did not destroy the spawned process). This is a regression of issue #3.")
+      fail(
+        s"PID $pid was still alive 5s after the child JVM exited; the shutdown hook did NOT fire (or did not destroy the spawned process). This is a regression of issue #3."
+      )
     }
   }
 }
