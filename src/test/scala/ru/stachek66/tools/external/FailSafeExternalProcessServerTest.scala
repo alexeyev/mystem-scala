@@ -146,4 +146,112 @@ class FailSafeExternalProcessServerTest extends AnyFunSuite {
       )
     }
   }
+
+  // -- syncRequest happy-path + restart-on-failure ------------------------
+
+  /** Line-buffered echo via Python — see ExternalProcessServerTest's
+    * helper for the rationale (awk input-buffers, stdbuf is GNU-only,
+    * Python is universal on modern CI runners).
+    */
+  private def pythonEchoScript(): File = {
+    val f = File.createTempFile("mystem-scala-echo-", ".py")
+    f.deleteOnExit()
+    val body =
+      """import sys
+        |for line in sys.stdin:
+        |    sys.stdout.write(line)
+        |    sys.stdout.flush()
+        |""".stripMargin
+    Files.write(f.toPath, body.getBytes(StandardCharsets.UTF_8))
+    f
+  }
+
+  /** A line echo that exits when it sees the magic line `DIE`. The next
+    * call into FailSafeExternalProcessServer should detect the dead child
+    * and respawn — that's the path we're trying to cover. */
+  private def dieOnCommandScript(): File = {
+    val f = File.createTempFile("mystem-scala-die-", ".py")
+    f.deleteOnExit()
+    val body =
+      """import sys
+        |for line in sys.stdin:
+        |    if line.rstrip("\n") == "DIE":
+        |        sys.exit(0)
+        |    sys.stdout.write(line)
+        |    sys.stdout.flush()
+        |""".stripMargin
+    Files.write(f.toPath, body.getBytes(StandardCharsets.UTF_8))
+    f
+  }
+
+  private def hasPython3: Boolean =
+    scala.util.Try {
+      val p = new ProcessBuilder("python3", "--version").redirectErrorStream(true).start()
+      p.waitFor() == 0
+    }.getOrElse(false)
+
+  test("syncRequest delegates to the wrapped server: line-in, line-out") {
+    assume(isUnixLike && hasPython3, "needs python3 + sh")
+    val cmd = s"python3 -u ${pythonEchoScript().getAbsolutePath}"
+    val s = new FailSafeExternalProcessServer(cmd)
+    try {
+      assert(s.syncRequest("ping").get === "ping")
+      assert(s.syncRequest("ещё один запрос").get === "ещё один запрос")
+    } finally s.close()
+  }
+
+  test("syncRequest restarts the wrapped process if it has died between calls") {
+    // This is the failure-recovery path that justifies wrapping
+    // ExternalProcessServer: if the child dies (mystem segfault, OOM,
+    // whatever), the next caller still gets a fresh child. Without this
+    // restart, every transient failure would manifest as a permanently
+    // broken MyStem instance until the user closed and recreated it.
+    //
+    // We exercise the path by using a script that exits cleanly when it
+    // sees `DIE\n`. After that, the wrapper's `if (!server.isAlive)`
+    // branch fires and a new ExternalProcessServer is spawned for the
+    // next syncRequest.
+    assume(isUnixLike && hasPython3, "needs python3 + sh")
+    val cmd = s"python3 -u ${dieOnCommandScript().getAbsolutePath}"
+    val s = new FailSafeExternalProcessServer(cmd)
+    try {
+      // 1. Establish a baseline: process is alive, syncRequest works.
+      assert(s.syncRequest("hello").get === "hello")
+
+      // 2. Tell the child to die. The Try the wrapper hands back here
+      //    is *expected* to be a failure (the child exited mid-request).
+      //    What we care about is the NEXT call, after the wrapper has
+      //    had a chance to detect the dead child.
+      val _ = s.syncRequest("DIE")
+
+      // Brief pause so the OS has time to tear the process down before
+      // FailSafeExternalProcessServer does its `isAlive` probe.
+      Thread.sleep(100L)
+
+      // 3. The wrapper must spawn a fresh child and round-trip the
+      //    request through it.
+      val recovered = s.syncRequest("after-restart")
+      assert(
+        recovered.isSuccess,
+        s"FailSafe must restart after the child dies; got $recovered"
+      )
+      assert(recovered.get === "after-restart")
+    } finally s.close()
+  }
+
+  test("syncRequest after close() returns Failure, even with a healthy command available") {
+    // Reinforces the closed-state contract: once close() has run, no
+    // further syncRequest should ever spin up a fresh (hookless) child,
+    // even if the underlying script is perfectly capable. This is the
+    // counter-example that proves close() really is final.
+    assume(isUnixLike && hasPython3, "needs python3 + sh")
+    val cmd = s"python3 -u ${pythonEchoScript().getAbsolutePath}"
+    val s = new FailSafeExternalProcessServer(cmd)
+    // Verify it works before close.
+    assert(s.syncRequest("alive").get === "alive")
+    s.close()
+    val after = s.syncRequest("ignored")
+    assert(after.isFailure)
+    assert(after.failed.get.isInstanceOf[IllegalStateException])
+  }
 }
