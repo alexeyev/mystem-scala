@@ -12,34 +12,35 @@ import scala.concurrent.duration._
 import scala.sys.process._
 import scala.util.Try
 
-/**
- * Provides fresh mystem binaries; a factory
- * alexeyev
- * 31.08.14.
- */
+/** Provides fresh `mystem` binaries and constructs configured [[MyStem]]
+  * analyzers. Roughly: "give me a MyStem 3.0; download the binary if I don't
+  * already have one cached".
+  */
 class Factory(parsingOptions: String = "-igd --eng-gr --format json --weight") {
 
   import ru.stachek66.nlp.mystem.Properties._
 
   private val log = LoggerFactory.getLogger(getClass)
 
-  /**
-   * Creates a new instance of mystem server
-   * Uses .local if customExecutable was not set
-   */
+  /** Construct a new [[MyStem]] analyzer.
+    *
+    * If `customExecutable` is `None`, the binary is fetched into
+    * `~/.local/bin/` (see `Properties.BinDestination`) the first time it is
+    * needed and reused thereafter.
+    */
   def newMyStem(version: String, customExecutable: Option[File] = None): Try[MyStem] = Try {
 
-    val ex = customExecutable match {
-      case Some(exe) => exe
-      case None => getExecutable(version)
-    }
+    val ex: File = customExecutable.getOrElse(getExecutable(version))
+
+    val cmd =
+      ex.getAbsolutePath + (if (parsingOptions.nonEmpty)
+                              " " + parsingOptions
+                            else
+                              "")
 
     version match {
-      case "3.0" | "3.1" =>
-        new MyStem3(
-          new FailSafeExternalProcessServer(
-            ex.getAbsolutePath + (if (parsingOptions.nonEmpty) " " + parsingOptions else "")))
-      case _ => throw new NotImplementedError()
+      case "3.0" | "3.1" => new MyStem3(new FailSafeExternalProcessServer(cmd))
+      case other => throw new NotImplementedError(s"mystem $other is not supported")
     }
   }
 
@@ -47,17 +48,17 @@ class Factory(parsingOptions: String = "-igd --eng-gr --format json --weight") {
   private[holding] def getExecutable(version: String): File = {
 
     val destFile = new File(BinDestination + BIN_FILE_NAME)
-    val tempFile = new File(s"${BinDestination}tmp_${System.currentTimeMillis}.${Decompressor.select.traditionalExtension}")
+    val tempFile =
+      new File(
+        s"${BinDestination}tmp_${System.currentTimeMillis}.${Decompressor.select.traditionalExtension}"
+      )
 
     if (destFile.exists) {
-
       log.info("Old executable file found")
 
       try {
         val suggestedVersion = (destFile.getAbsolutePath + " -v").!!
-
         log.info("Version | " + suggestedVersion)
-        // not scala-way stuff
         if (suggestedVersion.contains(version))
           destFile
         else
@@ -65,23 +66,28 @@ class Factory(parsingOptions: String = "-igd --eng-gr --format json --weight") {
       } catch {
         case e: Exception =>
           log.warn("Removing old binary files...", e)
-          destFile.delete
+          val _ = destFile.delete()
           getExecutable(version)
       }
-    } else Tools.withAttempt(10, 1.second) {
-      try {
-        Decompressor.select.unpack(
-          Downloader.downloadBinaryFile(getUrl(version), tempFile), destFile)
-      } finally {
-        tempFile.delete()
+    } else {
+      Tools.withAttempt(10, 1.second) {
         try {
-          Files.setPosixFilePermissions(destFile.toPath, PosixFilePermissions.fromString("r-xr-xr-x")).toFile
-        } catch {
-          case ioe: IOException =>
-            log.warn("Can't set POSIX permissions to file " + destFile.toPath)
-            destFile
+          val unpacked = Decompressor.select.unpack(Downloader.downloadBinaryFile(getUrl(version), tempFile), destFile)
+
+          // Best-effort POSIX permissions; on Windows this throws and we
+          // simply skip — the file is already executable on NTFS.
+          try Files.setPosixFilePermissions(destFile.toPath, PosixFilePermissions.fromString("r-xr-xr-x"))
+          catch {
+            case _: IOException | _: UnsupportedOperationException =>
+              log.warn("Can't set POSIX permissions to file " + destFile.toPath)
+          }
+
+          unpacked
+        } finally {
+          val _ = tempFile.delete()
         }
       }
     }
   }
+
 }

@@ -1,0 +1,53 @@
+name: Release
+
+on:
+  push:
+    # Tags like v0.3.0 — produced by `mvn release:prepare` (see RELEASING.md).
+    tags: ['v*']
+  workflow_dispatch:
+    # Manual trigger from the Actions UI for one-off / hand-rolled releases.
+
+jobs:
+  publish:
+    name: Publish to Maven Central (Sonatype Central Portal)
+    runs-on: ubuntu-latest
+
+    # The release runs once per Scala binary version. Each iteration deploys
+    # `mystem-scala_<scala-suffix>` to Central. Sonatype's Central Portal API
+    # accepts these as separate artifacts under the same groupId/version.
+    strategy:
+      fail-fast: true
+      matrix:
+        scala: ['2.12', '2.13']
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # `mvn release:perform` needs the full history to checkout the tag.
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+          # Provisions ~/.m2/settings.xml with a `central` server entry that
+          # picks credentials from the env vars below — this is the server-id
+          # the central-publishing-maven-plugin reads.
+          server-id: central
+          server-username: CENTRAL_USERNAME
+          server-password: CENTRAL_PASSWORD
+          gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
+          gpg-passphrase: MAVEN_GPG_PASSPHRASE
+
+      - name: Deploy
+        env:
+          CENTRAL_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
+          CENTRAL_PASSWORD: ${{ secrets.CENTRAL_PASSWORD }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+        run: |
+          mvn --batch-mode \
+              -P release,scala-${{ matrix.scala }} \
+              -DskipTests=true \
+              clean deploy

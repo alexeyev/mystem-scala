@@ -1,7 +1,43 @@
+RELEASING.md
+
+### IntelliJ IDEA
 *.iml
-.idea
-target
-*.zip
-*.gz
+.idea/
+
+### Eclipse / Metals / VS Code
+.bloop/
+.metals/
+.scala-build/
+.bsp/
+.vscode/
+
+### Maven build output
+target/
+
+### Logs and temp files
+*.log
 *~
-*log
+.DS_Store
+
+### Test fixtures we don't want committed (the originals stay)
+/src/test/resources/res.txt
+
+### Release plugin scratch files
+release.properties
+pom.xml.releaseBackup
+pom.xml.tag
+pom.xml.next
+pom.xml.branch
+
+### scoverage
+.scoverage/
+scoverage-data/
+
+### Local secrets
+local.properties
+*.gpg
+
+### macOS / Linux noise
+.DS_Store
+Thumbs.db
+*.patch

@@ -6,22 +6,21 @@ import java.net.URL
 import org.apache.commons.io.FileUtils
 import org.slf4j.LoggerFactory
 
-/**
- * alexeyev 
- * 31.08.14.
- */
 object Downloader {
 
   private val log = LoggerFactory.getLogger(getClass)
 
-  def downloadBinaryFile(url: URL, destination: File) = {
+  def downloadBinaryFile(url: URL, destination: File): File = {
     log.debug(s"Getting binaries from $url, writing to $destination ")
 
-    if (!destination.getAbsoluteFile.getParentFile.mkdirs && !destination.getAbsoluteFile.getParentFile.exists)
-      throw new Exception("Could not create directory: " + destination.getParentFile)
+    val parent = destination.getAbsoluteFile.getParentFile
+    if (!parent.mkdirs() && !parent.exists()) {
+      throw new Exception("Could not create directory: " + parent)
+    }
 
     FileUtils.copyURLToFile(url, destination)
     log.debug("Downloading binaries done.")
     destination
   }
+
 }

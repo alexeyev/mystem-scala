@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main, dev]
+  pull_request:
+    branches: [master, main, dev]
+
+# Avoid wasting compute on superseded pushes (e.g. force-pushes to a PR).
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: build (Java ${{ matrix.java }} / Scala ${{ matrix.scala }})
+    runs-on: ubuntu-latest
+    strategy:
+      # Don't kill the whole matrix on the first failure; we want to see all
+      # JDK / Scala combinations that broke.
+      fail-fast: false
+      matrix:
+        # We promise Java 8 source/target compatibility, so it's the lower
+        # bound in the matrix. 11 and 17 cover the current LTSes that most
+        # consumers actually run on.
+        java: ['8', '11', '17']
+        scala: ['2.12', '2.13']
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java }}
+          cache: maven
+
+      - name: Show versions
+        run: |
+          java -version
+          mvn -v
+
+      - name: Format check (scalafmt)
+        # Only check formatting once per build of the matrix to keep CI quick;
+        # picking the JDK 17 / Scala 2.13 cell is arbitrary but stable.
+        # `validateOnly=true` makes the plugin fail-on-diff instead of
+        # rewriting files in place.
+        if: matrix.java == '17' && matrix.scala == '2.13'
+        run: |
+          mvn --batch-mode -P scala-${{ matrix.scala }} \
+              -DvalidateOnly=true -DonlyChangedFiles=false \
+              scalafmt:format
+
+      - name: Compile
+        run: mvn --batch-mode -P scala-${{ matrix.scala }} -DskipTests=true compile
+
+      - name: Test
+        run: mvn --batch-mode -P scala-${{ matrix.scala }} test
+
+      - name: Coverage report (scoverage)
+        # Runs on the JDK 17 / Scala 2.13 cell only — duplicating across
+        # the matrix would just produce identical reports. The `coverage`
+        # profile binds scoverage:report+check to the verify phase and
+        # fails the build below the threshold configured in pom.xml.
+        if: matrix.java == '17' && matrix.scala == '2.13'
+        run: mvn --batch-mode -P scala-${{ matrix.scala }},coverage verify
+
+      - name: Upload coverage report
+        if: matrix.java == '17' && matrix.scala == '2.13'
+        uses: actions/upload-artifact@v4
+        with:
+          name: scoverage-report
+          path: |
+            target/scoverage/
+            target/site/scoverage/
+          if-no-files-found: ignore
