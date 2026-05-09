@@ -25,19 +25,22 @@ The artifact is cross-built for **Scala 2.12** and **Scala 2.13**.
 
 ### Maven
 
+TODO: deploy recent improvements
+
+
 ```xml
 <!-- For Scala 2.13 -->
 <dependency>
     <groupId>ru.stachek66.nlp</groupId>
     <artifactId>mystem-scala_2.13</artifactId>
-    <version>0.3.0</version>
+    <version>0.3.1</version>
 </dependency>
 
 <!-- For Scala 2.12 -->
 <dependency>
     <groupId>ru.stachek66.nlp</groupId>
     <artifactId>mystem-scala_2.12</artifactId>
-    <version>0.3.0</version>
+    <version>0.3.1</version>
 </dependency>
 ```
 
@@ -141,6 +144,50 @@ public final class MyStemJavaExample {
 since `MyStem` implements `java.lang.AutoCloseable`.
 
 ## Changelog
+
+### 0.3.1
+
+- **`GrammarInfo.person` (API change).** The `1p` / `2p` / `3p` person
+  tags emitted by mystem are now populated into a new `person:
+  Set[Person.Value]` field. Previously the parser silently dropped them
+  on the floor. Note: positional constructor calls to `GrammarInfo` will
+  break — named-argument call sites are unaffected.
+- **Parens-pipe `gr` parsing.** Real mystem 3.x output with `--weight`
+  emits multi-analysis strings like
+  `A,plen=(acc,sg,m,anim|gen,sg,m|gen,sg,n)`. The pre-existing parser
+  threw `NoSuchElementException` on the leading `(`. New
+  `GrammarInfoParsing.toGrammarInfos(s): List[GrammarInfo]` returns one
+  `GrammarInfo` per pipe-alternative; the previous `toGrammarInfo`
+  remains and now returns the most-likely interpretation (mystem orders
+  alternatives by descending probability, so `.head`).
+- **Wire-format aliases.** mystem 3.x emits `indic` (we declared
+  `Value("ind")` for indicative mood) and `praet` (we declared
+  `Value("past")` for past tense). Without alias support every real
+  verb output threw on parsing. `GrammarMapBuilder.aliases` (public)
+  now maps `indic`→`ind` and `praet`→`past`; both forms parse.
+- **Process robustness.** `ExternalProcessServer.syncRequest` no
+  longer spins forever in `while (!reader.ready()) {}` when the child
+  process exits without responding — `BufferedReader.ready()` returns
+  `false` at EOF, not true. The busy-wait now also gates on
+  `process.isAlive`, the drain loop breaks on `null` (avoiding
+  appending the literal string `"null"`), and an exit-without-output
+  surfaces as `IOException("process exited before producing any
+  response")` so `FailSafeExternalProcessServer` can spawn a fresh
+  child rather than wrap an empty success. The restart-on-death path
+  is now functionally testable.
+- **Refactor:** `Factory.getExecutable`'s cached-binary version check
+  is extracted into `private[holding] isCorrectVersion(file, version):
+  Boolean`. Same observable contract, but the version-matching logic
+  is now exercisable in unit tests without hitting the CDN.
+- **Test coverage.** ~70 new tests (75 → 140 across 15 test classes).
+  Statement coverage > 80%, branch coverage > 74% under scoverage.
+  Direct unit tests for `syncRequest` (using `python3 -u` as a portable
+  line-buffered echo stand-in), `isCorrectVersion`, `MyStem.normalize`,
+  `MyStemApplicationException`, archive edge cases (empty archive,
+  directory-as-first-entry), `FailSafeExternalProcessServer`
+  restart-on-death, plus broader coverage of `GrammarInfoParsing`
+  (parens-pipe alternatives, person, alias support, fail-loud on
+  unknown tags inside parens).
 
 ### 0.3.0
 
