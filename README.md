@@ -33,14 +33,14 @@ TODO: deploy recent improvements
 <dependency>
     <groupId>ru.stachek66.nlp</groupId>
     <artifactId>mystem-scala_2.13</artifactId>
-    <version>0.3.0</version>
+    <version>0.3.1</version>
 </dependency>
 
 <!-- For Scala 2.12 -->
 <dependency>
     <groupId>ru.stachek66.nlp</groupId>
     <artifactId>mystem-scala_2.12</artifactId>
-    <version>0.3.0</version>
+    <version>0.3.1</version>
 </dependency>
 ```
 
