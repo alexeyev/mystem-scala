@@ -3,14 +3,16 @@ package ru.stachek66.tools.external
 import scala.util.Try
 
 /**
- * alexeyev 
- * 16.10.14.
+ * Sync request/response contract over an external process.
+ *
+ * Implementations own an OS process and therefore extend [[AutoCloseable]];
+ * `close()` must be safe to call from a JVM shutdown hook.
  */
-trait SyncServer {
+trait SyncServer extends AutoCloseable {
 
-  /**
-   * You give it a string, and you get either response string or nothing.
-   */
+  /** Send `request`; return the response or a wrapped failure. */
   def syncRequest(request: String): Try[String]
 
+  /** Tear the underlying process down. Idempotent. */
+  override def close(): Unit
 }

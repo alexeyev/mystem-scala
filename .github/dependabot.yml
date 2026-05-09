@@ -1,0 +1,29 @@
+version: 2
+updates:
+
+  # Library dependencies (commons-compress, slf4j, json, etc.) and plugins.
+  - package-ecosystem: maven
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 10
+    labels:
+      - dependencies
+    # Group all minor/patch bumps together to cut review overhead, but let
+    # major bumps stay as individual PRs (they more often need manual care).
+    groups:
+      maven-minor-and-patch:
+        update-types:
+          - minor
+          - patch
+
+  # Keep our GitHub Actions pinned-but-fresh (actions/checkout, setup-java...).
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    labels:
+      - dependencies
+      - github-actions

@@ -15,7 +15,10 @@ object GrammarMapBuilder {
       tagToEnum(AdjectiveForms) ++ tagToEnum(Person) ++ tagToEnum(Case)
       ).toMap
 
-  private def tagToEnum(enum: Enumeration): Set[(String, Enumeration)] = enum.values.unsorted.map(value => value.toString -> enum)
+  private def tagToEnum(enum: Enumeration): Set[(String, Enumeration)] =
+    // `values.iterator.toSet` is cross-version-safe; `values.unsorted` was
+    // a 2.13-only addition that breaks the Scala 2.12 build.
+    enum.values.iterator.map(value => value.toString -> enum).toSet
 }
 
 object POS extends Enumeration {

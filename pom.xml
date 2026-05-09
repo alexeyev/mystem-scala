@@ -5,18 +5,24 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>ru.stachek66.nlp</groupId>
-    <artifactId>mystem-scala</artifactId>
-    <version>0.2.1</version>
+    <!--
+        The artifactId carries the Scala binary version suffix (e.g. _2.13).
+        This is the standard cross-build pattern used by Akka, Spark, Pekko, etc.
+        Switch the active value with -P scala-2.12 or -P scala-2.13 (default).
+    -->
+    <artifactId>mystem-scala_${scala.compat.version}</artifactId>
+    <version>0.3.0</version>
     <packaging>jar</packaging>
 
     <name>${project.groupId}:${project.artifactId}</name>
-    <description>A Scala wrapper for morphological analyzer Yandex.MyStem</description>
+    <description>A Scala/JVM wrapper for the Yandex.MyStem morphological analyzer (Russian language).</description>
     <url>https://github.com/alexeyev/mystem-scala</url>
 
     <licenses>
         <license>
             <name>MIT License</name>
-            <url>http://www.opensource.org/licenses/mit-license.php</url>
+            <url>https://opensource.org/licenses/MIT</url>
+            <distribution>repo</distribution>
         </license>
     </licenses>
 
@@ -29,43 +35,108 @@
     </developers>
 
     <scm>
-        <connection>scm:git:git@github.com:alexeyev/mystem-scala.git</connection>
+        <connection>scm:git:https://github.com/alexeyev/mystem-scala.git</connection>
         <developerConnection>scm:git:git@github.com:alexeyev/mystem-scala.git</developerConnection>
-        <url>git@github.com:alexeyev/mystem-scala.git</url>
+        <url>https://github.com/alexeyev/mystem-scala</url>
+        <tag>HEAD</tag>
     </scm>
 
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/alexeyev/mystem-scala/issues</url>
+    </issueManagement>
+
     <prerequisites>
-        <maven>3.0.2</maven>
+        <maven>3.6.0</maven>
     </prerequisites>
 
     <properties>
-        <scala.base.version>2.13</scala.base.version>
-        <scala.version>${scala.base.version}.4</scala.version>
-        <scalatest.version>3.0.9</scalatest.version>
-        <slf4j.version>1.7.32</slf4j.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <logback.version>1.2.13</logback.version>
-        <scala.plugin.version>4.5.6</scala.plugin.version>
-        <typesafe.config.version>1.2.1</typesafe.config.version>
-        <commons.version>2.15.1</commons.version>
-        <junit.version>4.13.1</junit.version>
-        <surefire.version>2.7</surefire.version>
-        <scoverage.plugin.version>1.4.11</scoverage.plugin.version>
-        <compress.version>1.26.0</compress.version>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+        <!-- Java 8 bytecode for maximum consumer compatibility. -->
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+
+        <!-- Defaults; overridden by the scala-2.12 / scala-2.13 profiles. -->
+        <scala.compat.version>2.13</scala.compat.version>
+        <scala.version>2.13.18</scala.version>
+
+        <!-- Library / tool versions. -->
+        <slf4j.version>2.0.16</slf4j.version>
+        <!-- 1.3.x is the last logback branch that still supports Java 8. -->
+        <logback.version>1.3.16</logback.version>
+        <commons.compress.version>1.27.1</commons.compress.version>
+        <commons.io.version>2.18.0</commons.io.version>
+        <typesafe.config.version>1.4.3</typesafe.config.version>
+        <json.version>20251224</json.version>
+
+        <scalatest.version>3.2.19</scalatest.version>
+        <junit.version>4.13.2</junit.version>
+
+        <!-- Plugin versions. -->
+        <scala.plugin.version>4.9.2</scala.plugin.version>
+        <maven.compiler.plugin.version>3.13.0</maven.compiler.plugin.version>
+        <maven.surefire.plugin.version>3.5.2</maven.surefire.plugin.version>
+        <scalatest.plugin.version>2.2.0</scalatest.plugin.version>
+        <maven.source.plugin.version>3.3.1</maven.source.plugin.version>
+        <maven.javadoc.plugin.version>3.10.1</maven.javadoc.plugin.version>
+        <maven.gpg.plugin.version>3.2.7</maven.gpg.plugin.version>
+        <maven.enforcer.plugin.version>3.5.0</maven.enforcer.plugin.version>
+        <maven.release.plugin.version>3.1.1</maven.release.plugin.version>
+        <central.publishing.plugin.version>0.10.0</central.publishing.plugin.version>
+        <scoverage.plugin.version>2.0.4</scoverage.plugin.version>
+        <!--
+            mvn-scalafmt is a build-time plugin; its Scala suffix is independent
+            of the project's `scala.compat.version`. Pin to 2.13.
+        -->
+        <scalafmt.plugin.version>1.1.1684076452.9f83818</scalafmt.plugin.version>
     </properties>
+
+    <dependencyManagement>
+        <!--
+            Pinning scala-library here forces every transitive resolver
+            (notably scalatest) to converge on our chosen Scala patch
+            version. Without this, the enforcer's dependencyConvergence
+            rule trips whenever scalatest releases against a newer 2.13
+            patch than ours (or vice versa).
+        -->
+        <dependencies>
+            <dependency>
+                <groupId>org.scala-lang</groupId>
+                <artifactId>scala-library</artifactId>
+                <version>${scala.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.scala-lang</groupId>
+                <artifactId>scala-reflect</artifactId>
+                <version>${scala.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
 
         <dependency>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>
-            <version>20231013</version>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+            <version>${scala.version}</version>
+            <!--
+                We deliberately keep `compile` (the default) rather than
+                `provided`. A Java consumer of this library must have
+                scala-library at runtime — case classes, Option, Iterable
+                instances all live there. Letting Maven pull it in
+                transitively is the friendliest behavior for a mixed-language
+                consumer base. For pure-Scala consumers, Maven's nearest-wins
+                resolution makes their own scala-library declaration take
+                precedence.
+            -->
         </dependency>
 
         <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>${logback.version}</version>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>${json.version}</version>
         </dependency>
 
         <dependency>
@@ -75,28 +146,15 @@
         </dependency>
 
         <dependency>
-            <groupId>org.scala-lang</groupId>
-            <artifactId>scala-library</artifactId>
-            <version>${scala.version}</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-compress</artifactId>
-            <version>${compress.version}</version>
+            <version>${commons.compress.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.scalatest</groupId>
-            <artifactId>scalatest_${scala.base.version}</artifactId>
-            <version>${scalatest.version}</version>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.scala-lang</groupId>
-                    <artifactId>scala-library</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons.io.version}</version>
         </dependency>
 
         <dependency>
@@ -105,10 +163,20 @@
             <version>${typesafe.config.version}</version>
         </dependency>
 
+        <!-- =========== Test dependencies =========== -->
+
         <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>${commons.version}</version>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.scalatest</groupId>
+            <artifactId>scalatest_${scala.compat.version}</artifactId>
+            <version>${scalatest.version}</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -121,33 +189,49 @@
     </dependencies>
 
     <build>
+        <sourceDirectory>src/main/scala</sourceDirectory>
+        <testSourceDirectory>src/test/scala</testSourceDirectory>
+
         <pluginManagement>
-          <plugins>
-            <plugin>
-              <groupId>org.scoverage</groupId>
-              <artifactId>scoverage-maven-plugin</artifactId>
-              <version>${scoverage.plugin.version}</version>
-            </plugin>
-          </plugins>
+            <plugins>
+                <plugin>
+                    <groupId>org.scoverage</groupId>
+                    <artifactId>scoverage-maven-plugin</artifactId>
+                    <version>${scoverage.plugin.version}</version>
+                    <configuration>
+                        <scalaVersion>${scala.version}</scalaVersion>
+                        <minimumCoverage>30</minimumCoverage>
+                        <failOnMinimumCoverage>false</failOnMinimumCoverage>
+                    </configuration>
+                </plugin>
+            </plugins>
         </pluginManagement>
 
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-release-plugin</artifactId>
-                <version>2.1</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>2.5</version>
-            </plugin>
+
             <plugin>
                 <groupId>net.alchim31.maven</groupId>
                 <artifactId>scala-maven-plugin</artifactId>
                 <version>${scala.plugin.version}</version>
+                <configuration>
+                    <scalaVersion>${scala.version}</scalaVersion>
+                    <scalaCompatVersion>${scala.compat.version}</scalaCompatVersion>
+                    <args>
+                        <!-- Strict compiler-as-linter flags. -->
+                        <arg>-deprecation</arg>
+                        <arg>-feature</arg>
+                        <arg>-unchecked</arg>
+                        <arg>-Xlint:_</arg>
+                        <arg>-encoding</arg>
+                        <arg>UTF-8</arg>
+                    </args>
+                    <jvmArgs>
+                        <jvmArg>-Xss4m</jvmArg>
+                    </jvmArgs>
+                </configuration>
                 <executions>
                     <execution>
+                        <id>scala-compile</id>
                         <goals>
                             <goal>compile</goal>
                             <goal>testCompile</goal>
@@ -155,25 +239,64 @@
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
+                <version>${maven.compiler.plugin.version}</version>
+            </plugin>
+
+            <!--
+                Disable Surefire (the JUnit runner). The ScalaTest plugin
+                drives our tests; leaving Surefire enabled would make it
+                complain about no JUnit tests being present.
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven.surefire.plugin.version}</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <skipTests>true</skipTests>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>org.scalatest</groupId>
+                <artifactId>scalatest-maven-plugin</artifactId>
+                <version>${scalatest.plugin.version}</version>
+                <configuration>
+                    <reportsDirectory>${project.build.directory}/scalatest-reports</reportsDirectory>
+                    <junitxml>.</junitxml>
+                    <stdout>WD</stdout>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>scala-test</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>1.4</version>
+                <version>${maven.enforcer.plugin.version}</version>
                 <executions>
                     <execution>
                         <id>enforce-em-all</id>
-                        <phase>package</phase>
+                        <phase>validate</phase>
                         <configuration>
                             <rules>
-                                <DependencyConvergence/>
+                                <dependencyConvergence/>
+                                <requireMavenVersion>
+                                    <version>[3.6.0,)</version>
+                                </requireMavenVersion>
+                                <requireJavaVersion>
+                                    <version>[1.8,)</version>
+                                </requireJavaVersion>
                             </rules>
                         </configuration>
                         <goals>
@@ -182,101 +305,154 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.scalatest</groupId>
-                <artifactId>scalatest-maven-plugin</artifactId>
-                <version>1.0</version>
-                <configuration>
-                    <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
-                    <stdout>W</stdout>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>scala-test</id>
-                        <goals>
-                            <goal>test</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.scoverage</groupId>
-                <artifactId>scoverage-maven-plugin</artifactId>
-                <configuration>
-                    <minimumCoverage>30</minimumCoverage>
-                    <failOnMinimumCoverage>true</failOnMinimumCoverage>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>coverage</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>3.2.1</version>
+                <version>${maven.source.plugin.version}</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
                         <goals>
-                            <goal>jar</goal>
+                            <goal>jar-no-fork</goal>
                         </goals>
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.2.0</version>
-                <configuration>
-                    <outputDirectory>${project.build.directory}</outputDirectory>
-                    <reportOutputDirectory>${project.reporting.outputDirectory}</reportOutputDirectory>
-                </configuration>
+                <version>${maven.javadoc.plugin.version}</version>
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
-                        <phase>package</phase>
                         <goals>
                             <goal>jar</goal>
                         </goals>
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-gpg-plugin</artifactId>
-                <version>1.6</version>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>${maven.release.plugin.version}</version>
+                <configuration>
+                    <tagNameFormat>v@{project.version}</tagNameFormat>
+                    <autoVersionSubmodules>true</autoVersionSubmodules>
+                    <useReleaseProfile>false</useReleaseProfile>
+                    <releaseProfiles>release</releaseProfiles>
+                    <goals>deploy</goals>
+                </configuration>
+            </plugin>
+
+            <!-- Linter / formatter: scalafmt -->
+            <plugin>
+                <groupId>org.antipathy</groupId>
+                <!--
+                    The Scala suffix on this plugin is the Scala version the
+                    plugin itself was built against — it is *not* tied to the
+                    Scala version of the project being built. We pin to _2.13.
+                -->
+                <artifactId>mvn-scalafmt_2.13</artifactId>
+                <version>${scalafmt.plugin.version}</version>
+                <configuration>
+                    <configLocation>${project.basedir}/.scalafmt.conf</configLocation>
+                    <skipSources>false</skipSources>
+                    <skipTestSources>false</skipTestSources>
+                    <respectVersion>true</respectVersion>
+                </configuration>
                 <executions>
                     <execution>
-                        <id>sign-artifacts</id>
-                        <phase>verify</phase>
+                        <id>validate-format</id>
+                        <phase>validate</phase>
                         <goals>
-                            <goal>sign</goal>
+                            <goal>format</goal>
                         </goals>
+                        <configuration>
+                            <onlyChangedFiles>false</onlyChangedFiles>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
         </plugins>
     </build>
 
-    <reporting>
-        <plugins>
-        </plugins>
-    </reporting>
+    <profiles>
 
-    <distributionManagement>
-        <snapshotRepository>
-            <id>osssh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-        <repository>
-            <id>ossr</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
-    </distributionManagement>
+        <profile>
+            <id>scala-2.13</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <scala.compat.version>2.13</scala.compat.version>
+                <scala.version>2.13.18</scala.version>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>scala-2.12</id>
+            <properties>
+                <scala.compat.version>2.12</scala.compat.version>
+                <scala.version>2.12.21</scala.version>
+            </properties>
+        </profile>
+
+        <!--
+            Activated automatically by the maven-release-plugin and on demand
+            via -P release. Builds and signs sources/javadoc and uploads the
+            bundle to the new Sonatype Central Portal. OSSRH was sunset on
+            2025-06-30 (see https://central.sonatype.org/news/20250326_ossrh_sunset/ ),
+            so the legacy nexus-staging-maven-plugin no longer works.
+        -->
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>${maven.gpg.plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                                <configuration>
+                                    <gpgArguments>
+                                        <arg>--pinentry-mode</arg>
+                                        <arg>loopback</arg>
+                                    </gpgArguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>${central.publishing.plugin.version}</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <publishingServerId>central</publishingServerId>
+                            <!--
+                                When true, the bundle is published to Central
+                                immediately after validation; leave it false
+                                during initial setup so the deployment can be
+                                reviewed in the Portal UI first.
+                            -->
+                            <autoPublish>false</autoPublish>
+                            <waitUntil>validated</waitUntil>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+    </profiles>
+
 </project>

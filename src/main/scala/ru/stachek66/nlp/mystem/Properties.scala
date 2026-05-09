@@ -1,20 +1,18 @@
 package ru.stachek66.nlp.mystem
 
-import java.net.URL
+import java.net.{URI, URL}
 
 import com.typesafe.config.ConfigFactory
 import org.slf4j.LoggerFactory
 
 /**
- * Various configs for interaction with outer world
- * alexeyev 
- * 31.08.14.
+ * Various configs for interaction with the outer world.
  */
 object Properties {
 
   private val log = LoggerFactory.getLogger(getClass)
 
-  val BinDestination = System.getProperty("user.home") + "/.local/bin/"
+  val BinDestination: String = System.getProperty("user.home") + "/.local/bin/"
 
   private val systemOsName = System.getProperty("os.name")
   private val systemOsArchitecture = System.getProperty("os.arch")
@@ -24,7 +22,7 @@ object Properties {
 
   val BIN_FILE_NAME: String = CurrentOs match {
     case name if name.startsWith("win") => "mystem.exe"
-    case name => "mystem"
+    case _                              => "mystem"
   }
 
   private lazy val rootProp = ConfigFactory.load("mystem-sources.conf")
@@ -32,30 +30,32 @@ object Properties {
 
   private val versionPattern = "\\d+\\.\\d+".r.pattern
 
-  private def doOrDie[T](action: => T, message: String = "Unknown error"): T =
+  /** Run `action`; if it throws, rethrow as an Exception preserving the cause. */
+  private def doOrDie[T](action: => T, message: String): T =
     try action
     catch {
-      case e: Throwable => throw new Exception(message)
+      case t: Throwable => throw new Exception(message, t)
     }
 
   @throws(classOf[Exception])
   def getUrl(versionRaw: String, os: String = CurrentOs): URL = {
 
-    require(versionPattern.matcher(versionRaw).matches,
-      "Troubles with version name, should match pattern <number>.<number>")
+    require(
+      versionPattern.matcher(versionRaw).matches,
+      "Troubles with version name, should match pattern <number>.<number>"
+    )
 
     val versionProps =
-      doOrDie(
-        version.getConfig(versionRaw),
-        s"No binaries sources for version [$versionRaw] found")
+      doOrDie(version.getConfig(versionRaw), s"No binaries sources for version [$versionRaw] found")
 
     val url =
-      doOrDie(
-        versionProps.getString(os),
-        s"Version number is correct, no binaries sources for OS [$os] found")
+      doOrDie(versionProps.getString(os), s"Version number is correct, no binaries sources for OS [$os] found")
 
     doOrDie(
-      new URL(url),
-      s"URL configs troubles. If you see this message, please email anton.m.alexeyev@gmail.com")
+      // `new URL(String)` was deprecated in Java 20+. URI.toURL has been
+      // there since Java 1.4 and behaves the same way for our purposes.
+      URI.create(url).toURL(),
+      s"URL configs troubles. If you see this message, please email anton.m.alexeyev@gmail.com"
+    )
   }
 }
