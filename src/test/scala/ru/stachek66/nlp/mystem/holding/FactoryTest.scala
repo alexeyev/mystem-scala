@@ -81,4 +81,98 @@ class FactoryTest extends AnyFunSuite {
     assert(result.isSuccess)
     result.get.close()
   }
+
+  // -- isCorrectVersion: cached-binary version detection -----------------
+
+  /** Build a tiny shell script that prints `body` on `-v` and exits 0,
+    * mimicking what real mystem does for `mystem -v`. The script is
+    * marked executable and self-deleting on JVM exit.
+    */
+  private def fakeBinaryPrinting(body: String): File = {
+    val f = File.createTempFile("factory-fake-mystem-", ".sh")
+    f.deleteOnExit()
+    val script =
+      s"""#!/bin/sh
+         |# Fake mystem binary for FactoryTest.isCorrectVersion.
+         |# Real mystem prints its version on -v; we mimic that
+         |# behaviour irrespective of arguments to keep the test simple.
+         |echo "${body.replace("\"", "\\\"")}"
+         |""".stripMargin
+    java.nio.file.Files.write(f.toPath, script.getBytes(java.nio.charset.StandardCharsets.UTF_8))
+    val _ = f.setExecutable(true)
+    f
+  }
+
+  test("isCorrectVersion returns true when the binary's version output contains the requested version") {
+    // Real mystem prints something like
+    //   Yandex Mystem 3.1 (libmystem 3.1, build 2017-04-11)
+    // We only need substring containment on the version we asked for.
+    assume(new java.io.File("/bin/sh").canExecute, "needs /bin/sh")
+    val factory = new Factory()
+    val fake = fakeBinaryPrinting("Yandex Mystem 3.1 (linux64)")
+    assert(factory.isCorrectVersion(fake, "3.1"))
+  }
+
+  test("isCorrectVersion returns false when the binary prints a DIFFERENT version") {
+    // The trigger for the delete-and-refetch path: a stale binary from
+    // an older or unrelated install. Pin: we DO refuse to reuse it.
+    assume(new java.io.File("/bin/sh").canExecute, "needs /bin/sh")
+    val factory = new Factory()
+    val fake = fakeBinaryPrinting("Yandex Mystem 9.9.9 (custom)")
+    assert(!factory.isCorrectVersion(fake, "3.1"))
+  }
+
+  test("isCorrectVersion returns false when the binary cannot be executed (broken cache file)") {
+    // Cached file exists but isn't executable — common after a partial
+    // download or a tarball that was extracted with the wrong umask.
+    // Falling back to "version cannot be confirmed → re-fetch" is the
+    // right move; the alternative is a confusing crash much later.
+    val factory = new Factory()
+    val notExec = File.createTempFile("factory-not-exec-", ".bin")
+    notExec.deleteOnExit()
+    java.nio.file.Files.write(notExec.toPath, "garbage".getBytes(java.nio.charset.StandardCharsets.UTF_8))
+    // Deliberately do NOT call setExecutable(true).
+    assert(!factory.isCorrectVersion(notExec, "3.1"))
+  }
+
+  test("isCorrectVersion returns false on a non-existent binary path") {
+    val factory = new Factory()
+    val ghost = new File("/tmp/nonexistent-mystem-binary-zzyzx-" + System.nanoTime())
+    assert(!ghost.exists())
+    assert(!factory.isCorrectVersion(ghost, "3.1"))
+  }
+
+  test("isCorrectVersion does substring matching on the version line") {
+    // Real output isn't equal to the version string, it CONTAINS it.
+    // Pin that we do plain `String.contains` and not exact equality —
+    // "3.1" must match "Yandex Mystem 3.1 (...)".
+    assume(new java.io.File("/bin/sh").canExecute, "needs /bin/sh")
+    val factory = new Factory()
+    val fake = fakeBinaryPrinting("I am Yandex Mystem version 3.1, hello!")
+    assert(factory.isCorrectVersion(fake, "3.1"))
+  }
+
+  test("isCorrectVersion treats the version arg as plaintext, not a regex") {
+    // If we ever swapped contains() for a regex match, "3.1" would
+    // suddenly match "3X1" too because `.` is "any character" in regex.
+    // Pin that swap as an intentional change rather than an accident.
+    assume(new java.io.File("/bin/sh").canExecute, "needs /bin/sh")
+    val factory = new Factory()
+    val fake = fakeBinaryPrinting("Mystem 3X1")
+    assert(!factory.isCorrectVersion(fake, "3.1"))
+  }
+
+  test("isCorrectVersion returns false when the binary exits non-zero") {
+    // `(cmd).!!` throws on a non-zero exit code (it's the
+    // "throw-on-failure" sibling of `.!`). Our Try/Failure branch
+    // catches that and returns false — the binary is unusable, treat
+    // it as a wrong-version cache to be replaced.
+    assume(new java.io.File("/bin/sh").canExecute, "needs /bin/sh")
+    val factory = new Factory()
+    val f = File.createTempFile("factory-exit-1-", ".sh")
+    f.deleteOnExit()
+    java.nio.file.Files.write(f.toPath, "#!/bin/sh\nexit 1\n".getBytes(java.nio.charset.StandardCharsets.UTF_8))
+    val _ = f.setExecutable(true)
+    assert(!factory.isCorrectVersion(f, "3.1"))
+  }
 }
