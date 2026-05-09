@@ -14,8 +14,7 @@ import ru.stachek66.nlp.mystem.model.Info
 class CommunicationTest extends AnyFunSuite {
 
   /** Trivial in-memory stub so we don't need a real subprocess. */
-  private class StubMyStem(echo: Request => Response = r => Response(Vector.empty))
-      extends MyStem {
+  private class StubMyStem(echo: Request => Response = r => Response(Vector.empty)) extends MyStem {
     override def analyze(request: Request): Response = echo(request)
   }
 

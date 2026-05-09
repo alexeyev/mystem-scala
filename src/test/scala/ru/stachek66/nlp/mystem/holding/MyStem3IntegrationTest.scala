@@ -156,8 +156,10 @@ class MyStem3IntegrationTest extends AnyFunSuite {
       val grP = "\"gr\":\"([^\"]+)\"".r.findFirstMatchIn(rawP).map(_.group(1)).get
       val giP = GrammarInfoParsing.toGrammarInfo(grP)
       assert(giP.pos === Set(POS.V), s"gr=$grP")
-      assert(giP.verbFormInfo.contains(ru.stachek66.nlp.mystem.model.VerbForms.indicativeMood),
-        s"`indic` alias must map to indicativeMood, gr=$grP, parsed=$giP")
+      assert(
+        giP.verbFormInfo.contains(ru.stachek66.nlp.mystem.model.VerbForms.indicativeMood),
+        s"`indic` alias must map to indicativeMood, gr=$grP, parsed=$giP"
+      )
       assert(giP.person.nonEmpty, s"verb in 1p form must have a person tag, gr=$grP")
 
       // Past-tense form, exercises `praet` alias.
@@ -165,8 +167,10 @@ class MyStem3IntegrationTest extends AnyFunSuite {
       val rawPast = past.find(_.lex.contains("мыть")).get.rawResponse
       val grPast = "\"gr\":\"([^\"]+)\"".r.findFirstMatchIn(rawPast).map(_.group(1)).get
       val giPast = GrammarInfoParsing.toGrammarInfo(grPast)
-      assert(giPast.tense === Set(ru.stachek66.nlp.mystem.model.Tense.past),
-        s"`praet` alias must map to Tense.past, gr=$grPast, parsed=$giPast")
+      assert(
+        giPast.tense === Set(ru.stachek66.nlp.mystem.model.Tense.past),
+        s"`praet` alias must map to Tense.past, gr=$grPast, parsed=$giPast"
+      )
     }
   }
 

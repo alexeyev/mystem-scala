@@ -168,7 +168,8 @@ class FailSafeExternalProcessServerTest extends AnyFunSuite {
 
   /** A line echo that exits when it sees the magic line `DIE`. The next
     * call into FailSafeExternalProcessServer should detect the dead child
-    * and respawn — that's the path we're trying to cover. */
+    * and respawn — that's the path we're trying to cover.
+    */
   private def dieOnCommandScript(): File = {
     val f = File.createTempFile("mystem-scala-die-", ".py")
     f.deleteOnExit()
@@ -184,11 +185,12 @@ class FailSafeExternalProcessServerTest extends AnyFunSuite {
     f
   }
 
-  private def hasPython3: Boolean =
-    scala.util.Try {
+  private def hasPython3: Boolean = scala.util
+    .Try {
       val p = new ProcessBuilder("python3", "--version").redirectErrorStream(true).start()
       p.waitFor() == 0
-    }.getOrElse(false)
+    }
+    .getOrElse(false)
 
   test("syncRequest delegates to the wrapped server: line-in, line-out") {
     assume(isUnixLike && hasPython3, "needs python3 + sh")

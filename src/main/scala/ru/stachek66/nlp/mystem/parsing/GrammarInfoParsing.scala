@@ -45,8 +45,7 @@ object GrammarInfoParsing {
         // which gives us a single GrammarInfo built from just the prefix —
         // that's the right behavior for the degenerate `S=()` shape.
         inner.split('|').iterator.map(alt => parseSingleAnalysis(prefix + alt)).toList
-      case _ =>
-        List(parseSingleAnalysis(commaSeparatedTags))
+      case _ => List(parseSingleAnalysis(commaSeparatedTags))
     }
 
   /** Parse the most-likely interpretation as a single [[GrammarInfo]].
@@ -57,8 +56,7 @@ object GrammarInfoParsing {
     *
     * Use [[toGrammarInfos]] when you need every alternative.
     */
-  def toGrammarInfo(commaSeparatedTags: String): GrammarInfo =
-    toGrammarInfos(commaSeparatedTags).head
+  def toGrammarInfo(commaSeparatedTags: String): GrammarInfo = toGrammarInfos(commaSeparatedTags).head
 
   /** Parse a flat (non-parens) tag string. The previous implementation
     * used `mapValues`, which in Scala 2.13 returns a lazy `MapView` and

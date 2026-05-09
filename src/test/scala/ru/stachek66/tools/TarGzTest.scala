@@ -55,9 +55,8 @@ class TarGzTest extends AnyFunSuite {
     tgz.deleteOnExit()
     val gzip = new GZIPOutputStream(new FileOutputStream(tgz))
     val tar = new TarArchiveOutputStream(gzip)
-    try {
-      tar.finish()
-    } finally {
+    try tar.finish()
+    finally {
       tar.close()
       gzip.close()
     }

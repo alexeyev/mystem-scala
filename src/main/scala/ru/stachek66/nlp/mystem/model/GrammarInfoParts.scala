@@ -17,8 +17,8 @@ object GrammarMapBuilder {
     * same canonicalisation rules as the parser.
     */
   val aliases: Map[String, String] = Map(
-    "indic" -> "ind",   // VerbForms.indicativeMood
-    "praet" -> "past"   // Tense.past
+    "indic" -> "ind", // VerbForms.indicativeMood
+    "praet" -> "past" // Tense.past
   )
 
   /** The canonical (Enumeration-Value-side) form of a wire-format tag. */
@@ -35,9 +35,7 @@ object GrammarMapBuilder {
         tagToEnum(Number) ++ tagToEnum(Voice) ++ tagToEnum(Other) ++
         tagToEnum(AdjectiveForms) ++ tagToEnum(Person) ++ tagToEnum(Case)).toMap
 
-    canonicalMap ++ aliases.flatMap {
-      case (alias, canon) => canonicalMap.get(canon).map(alias -> _)
-    }
+    canonicalMap ++ aliases.flatMap { case (alias, canon) => canonicalMap.get(canon).map(alias -> _) }
   }
 
   private def tagToEnum(enum: Enumeration): Set[(String, Enumeration)] =

@@ -235,7 +235,7 @@ class GrammarInfoParsingTest extends AnyFunSuite {
     assert(GrammarMapBuilder.canonical("nonsense") === "nonsense")
   }
 
-  test("each documented tag in tagToEnumMap maps to the enum it belongs to") {    // Catches a class of mistake: a tag accidentally registered under the
+  test("each documented tag in tagToEnumMap maps to the enum it belongs to") { // Catches a class of mistake: a tag accidentally registered under the
     // wrong enum (e.g., "nom" landing in Gender instead of Case).
     val expectations = Map(
       "S" -> POS,

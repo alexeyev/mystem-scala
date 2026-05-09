@@ -81,7 +81,8 @@ class ZipTest extends AnyFunSuite {
     val zip = File.createTempFile("mystem-scala-zip-empty-", ".zip")
     zip.deleteOnExit()
     val out = new ZipArchiveOutputStream(new FileOutputStream(zip))
-    try { out.finish() } finally { out.close() }
+    try out.finish()
+    finally out.close()
 
     val dst = File.createTempFile("mystem-scala-zip-empty-out-", ".out")
     dst.deleteOnExit()

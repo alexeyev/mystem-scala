@@ -117,11 +117,12 @@ class ExternalProcessServerTest extends AnyFunSuite {
     f
   }
 
-  private def hasPython3: Boolean =
-    scala.util.Try {
+  private def hasPython3: Boolean = scala.util
+    .Try {
       val p = new ProcessBuilder("python3", "--version").redirectErrorStream(true).start()
       p.waitFor() == 0
-    }.getOrElse(false)
+    }
+    .getOrElse(false)
 
   test("syncRequest writes a line to stdin and returns the line the process emits") {
     assume(isUnixLike && hasPython3, "needs python3 + sh")
