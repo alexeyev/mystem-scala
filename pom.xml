@@ -11,7 +11,7 @@
         Switch the active value with -P scala-2.12 or -P scala-2.13 (default).
     -->
     <artifactId>mystem-scala_${scala.compat.version}</artifactId>
-    <version>0.3.0</version>
+    <version>0.3.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>${project.groupId}:${project.artifactId}</name>
