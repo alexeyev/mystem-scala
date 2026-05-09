@@ -21,7 +21,7 @@ jobs:
         scala: ['2.12', '2.13']
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           # `mvn release:perform` needs the full history to checkout the tag.
           fetch-depth: 0
