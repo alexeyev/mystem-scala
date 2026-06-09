@@ -76,7 +76,7 @@
         <commons.compress.version>1.27.1</commons.compress.version>
         <commons.io.version>2.18.0</commons.io.version>
         <typesafe.config.version>1.4.3</typesafe.config.version>
-        <json.version>20251224</json.version>
+        <json.version>20260522</json.version>
 
         <scalatest.version>3.2.19</scalatest.version>
         <junit.version>4.13.2</junit.version>
